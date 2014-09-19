@@ -89,10 +89,24 @@ public class Rotate {
 
         return new Pix(nativePix);
     }
+    
+    
+    public static Pix rotateOrth(Pix pixs, int quads) {
+        if (pixs == null)
+            throw new IllegalArgumentException("Source pix must be non-null");
+
+        int nativePix = nativeRotateOrth(pixs.mNativePix, quads);
+
+        if (nativePix == 0)
+            return null;
+
+        return new Pix(nativePix);
+    }
 
     // ***************
     // * NATIVE CODE *
     // ***************
+    private static native int nativeRotateOrth(long nativePix, int quads);
 
     private static native long nativeRotate(long nativePix, float degrees, boolean quality,
     		boolean resize);

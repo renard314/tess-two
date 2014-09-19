@@ -405,9 +405,17 @@ public class TessBaseAPI {
     public String getUTF8Text() {
         // Trim because the text will have extra line breaks at the end
         String text = nativeGetUTF8Text();
-
         return text.trim();
     }
+    
+    /**
+     * return a html representation of the recognized text that can be used by {@link android.text.Html.fromHtml}
+     * @return
+     */
+    public String getHtmlText() {
+        return nativeGetHtmlText();    	
+    }
+    
 
     /**
      * Returns the mean confidence of text recognition.
@@ -583,6 +591,8 @@ public class TessBaseAPI {
     private native void nativeSetRectangle(int left, int top, int width, int height);
 
     private native String nativeGetUTF8Text();
+    
+    private native String nativeGetHtmlText();
 
     private native int nativeMeanConfidence();
 

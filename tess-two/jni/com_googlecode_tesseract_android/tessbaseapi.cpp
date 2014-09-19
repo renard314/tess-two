@@ -21,6 +21,10 @@
 #include "common.h"
 #include "baseapi.h"
 #include "allheaders.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
+
 
 static jfieldID field_mNativeData;
 
@@ -239,6 +243,118 @@ jstring Java_com_googlecode_tesseract_android_TessBaseAPI_nativeGetUTF8Text(JNIE
   return result;
 }
 
+
+
+
+std::string GetHTMLText(tesseract::ResultIterator* res_it, const float minConfidenceToShowColor) {
+	int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
+	std::ostringstream html_str;
+	bool isItalic = false;
+	bool para_open = false;
+
+	for (; !res_it->Empty(tesseract::RIL_BLOCK); wcnt++) {
+		if (res_it->Empty(tesseract::RIL_WORD)) {
+			res_it->Next(tesseract::RIL_WORD);
+			continue;
+		}
+
+		if (res_it->IsAtBeginningOf(tesseract::RIL_PARA)) {
+			if (para_open) {
+				html_str << "</p>";
+				pcnt++;
+			}
+			html_str << "<p>";
+			para_open = true;
+		}
+
+		// Now, process the word...
+		const char *font_name;
+		bool bold, italic, underlined, monospace, serif, smallcaps;
+		int pointsize, font_id;
+		font_name = res_it->WordFontAttributes(&bold, &italic, &underlined,
+				&monospace, &serif, &smallcaps, &pointsize, &font_id);
+
+		float confidence = res_it->Confidence(tesseract::RIL_WORD);
+		bool addConfidence = false;
+
+		if (italic && !isItalic) {
+			html_str << "<strong>";
+			isItalic = true;
+		} else if (!italic && isItalic) {
+			html_str << "</strong>";
+			isItalic = false;
+		}
+
+		char* word = res_it->GetUTF8Text(tesseract::RIL_WORD);
+		bool isSpace = strcmp(word, " ") == 0;
+		delete[] word;
+		if (confidence < minConfidenceToShowColor && !isSpace) {
+			addConfidence = true;
+			html_str << "<font conf='";
+			html_str << (int) confidence;
+			html_str << "' color='#DE2222'>";
+		}
+
+		do {
+			const char *grapheme = res_it->GetUTF8Text(tesseract::RIL_SYMBOL);
+			if (grapheme && grapheme[0] != 0) {
+				if (grapheme[1] == 0) {
+					switch (grapheme[0]) {
+					case '<':
+						html_str << "&lt;";
+						break;
+					case '>':
+						html_str << "&gt;";
+						break;
+					case '&':
+						html_str << "&amp;";
+						break;
+					case '"':
+						html_str << "&quot;";
+						break;
+					case '\'':
+						html_str << "&#39;";
+						break;
+					default:
+						html_str << grapheme;
+						break;
+					}
+				} else {
+					html_str << grapheme;
+				}
+			}
+			delete[] grapheme;
+			res_it->Next(tesseract::RIL_SYMBOL);
+		} while (!res_it->Empty(tesseract::RIL_BLOCK)
+				&& !res_it->IsAtBeginningOf(tesseract::RIL_WORD));
+
+		if (addConfidence == true) {
+			html_str << "</font>";
+		}
+
+		html_str << " ";
+	}
+	if (isItalic) {
+		html_str << "</strong>";
+	}
+	if (para_open) {
+		html_str << "</p>";
+		pcnt++;
+	}
+	return html_str.str();
+}
+
+jstring Java_com_googlecode_tesseract_android_TessBaseAPI_nativeGetHtmlText(JNIEnv *env,
+                                                                            jobject thiz) {
+
+  native_data_t *nat = get_native_data(env, thiz);
+
+  tesseract::ResultIterator* res_it = nat->api.GetIterator();
+  std::string utf8text = GetHTMLText(res_it, 70);
+  jstring result = env->NewStringUTF(utf8text.c_str());
+  return result;
+}
+
 void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeStop(JNIEnv *env, 
                                                                   jobject thiz) {
 
@@ -437,7 +553,8 @@ jstring Java_com_googlecode_tesseract_android_TessBaseAPI_nativeGetHOCRText(JNIE
 
   native_data_t *nat = get_native_data(env, thiz);
 
-  char *text = nat->api.GetHOCRText(page);
+  //TODO propagate up into java
+  char *text = nat->api.GetHOCRText(page,NULL);
 
   jstring result = env->NewStringUTF(text);
 

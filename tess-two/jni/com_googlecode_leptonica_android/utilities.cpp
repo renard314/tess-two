@@ -160,6 +160,15 @@ jbyteArray Java_com_googlecode_leptonica_android_JpegIO_nativeCompressToJpeg(JNI
  * Scale *
  *********/
 
+jlong Java_com_googlecode_leptonica_android_Scale_nativeScaleGeneral(JNIEnv *env, jclass clazz,
+                                                             jlong nativePix, jfloat scaleX,
+                                                             jfloat scaleY,jfloat sharpfract, jint sharpwidth) {
+  LOGV("%s",__FUNCTION__);
+  PIX *pixs = (PIX *) nativePix;
+  PIX *pixd = pixScaleGeneral(pixs, (l_float32) scaleX, (l_float32) scaleY,(l_float32) sharpfract, (l_int32) sharpwidth);
+  return (jlong) pixd;
+}
+
 jlong Java_com_googlecode_leptonica_android_Scale_nativeScale(JNIEnv *env, jclass clazz,
                                                               jlong nativePix, jfloat scaleX,
                                                               jfloat scaleY) {
@@ -198,6 +207,16 @@ jfloat Java_com_googlecode_leptonica_android_Skew_nativeFindSkew(JNIEnv *env, jc
   return (jfloat) 0;
 }
 
+jlong Java_com_googlecode_leptonica_android_Clip_nativeClipRectangle(JNIEnv *env, jclass clazz, jlong nativePix, jlong nativeBox) {
+	  LOGV("%s",__FUNCTION__);
+
+  PIX *pixs = (PIX *) nativePix;
+  BOX *box = (BOX *) nativeBox;
+  PIX *pixd;
+  pixd = pixClipRectangle(pixs,box,NULL);
+  return (jlong) pixd;
+}
+
 /**********
  * Rotate *
  **********/
@@ -223,6 +242,16 @@ jlong Java_com_googlecode_leptonica_android_Rotate_nativeRotate(JNIEnv *env, jcl
     pixd = pixRotate(pixs, radians, type, L_BRING_IN_WHITE, w, h);
   }
 
+  return (jlong) pixd;
+}
+
+jlong Java_com_googlecode_leptonica_android_Rotate_nativeRotateOrth(JNIEnv *env, jclass clazz,
+                                                               jlong nativePix, jint quads) {
+	  LOGV("%s",__FUNCTION__);
+
+  PIX *pixs = (PIX *) nativePix;
+  PIX *pixd;
+  pixd = pixRotateOrth(pixs,(int)quads);
   return (jlong) pixd;
 }
 

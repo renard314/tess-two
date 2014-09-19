@@ -94,7 +94,11 @@ public class Scale {
     public static Pix scale(Pix pixs, float scale) {
         return scale(pixs, scale, scale);
     }
-
+    
+    public static Pix scaleWithoutFiltering(Pix pixs, float scale) {
+        return new Pix(nativeScaleGeneral(pixs.mNativePix, scale,scale, 0,0));
+    }
+    
     /**
      * Scales the Pix to specified x and y scale. If no scaling is required,
      * returns a clone of the source Pix.
@@ -119,10 +123,13 @@ public class Scale {
 
         return new Pix(nativePix);
     }
+    
 
     // ***************
     // * NATIVE CODE *
     // ***************
 
     private static native long nativeScale(long nativePix, float scaleX, float scaleY);
+    private static native int nativeScaleGeneral(long nativePix, float scaleX, float scaleY, float sharpfract, int sharpwidth);
+
 }
