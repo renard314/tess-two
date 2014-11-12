@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-#include "common.h"
-
-#include <string.h>
+#include <allheaders.h>
 #include <android/bitmap.h>
+#include <android/log.h>
+#include <common.h>
+#include <environ.h>
+#include <jni.h>
+#include <pix.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,57 +140,46 @@ jlong Java_com_googlecode_leptonica_android_ReadFile_nativeReadFile(JNIEnv *env,
 
 jlong Java_com_googlecode_leptonica_android_ReadFile_nativeReadBitmap(JNIEnv *env, jclass clazz,
                                                                       jobject bitmap) {
-  l_int32 w, h, d;
-  AndroidBitmapInfo info;
-  void* pixels;
-  int ret;
+	LOGV(__FUNCTION__);
 
-  if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
-    LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
-    return JNI_FALSE;
-  }
+	l_int32 w, h, d;
+	AndroidBitmapInfo info;
+	void* pixels;
+	int ret;
 
-  if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
-    LOGE("Bitmap format is not RGBA_8888 !");
-    return JNI_FALSE;
-  }
+	if ((ret = AndroidBitmap_getInfo(env, bitmap, &info)) < 0) {
+		LOGE("AndroidBitmap_getInfo() failed ! error=%d", ret);
+		return JNI_FALSE;
+	}
 
-  if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
-    LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
-    return JNI_FALSE;
-  }
+	if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+		LOGE("Bitmap format is not RGBA_8888 !");
+		return JNI_FALSE;
+	}
 
-  PIX *pixd = pixCreate(info.width, info.height, 8);
+	if ((ret = AndroidBitmap_lockPixels(env, bitmap, &pixels)) < 0) {
+		LOGE("AndroidBitmap_lockPixels() failed ! error=%d", ret);
+		return JNI_FALSE;
+	}
 
-  l_uint32 *src = (l_uint32 *) pixels;
-  l_int32 srcWpl = (info.stride / 4);
-  l_uint32 *dst = pixGetData(pixd);
-  l_int32 dstWpl = pixGetWpl(pixd);
-  l_uint8 a, r, g, b, pixel8;
+	PIX *pixd = pixCreate(info.width, info.height, 32);
+	l_uint8 *src = (l_uint8 *) pixels;
+	l_uint8 *dst = (l_uint8 *) pixGetData(pixd);
+	l_int32 srcBpl = (info.stride);
+	l_int32 dstBpl = pixGetWpl(pixd)*4;
 
-  for (int y = 0; y < info.height; y++) {
-    l_uint32 *dst_line = dst + (y * dstWpl);
-    l_uint32 *src_line = src + (y * srcWpl);
+	for (int dy = 0; dy < info.height; dy++) {
+		memcpy(dst, src, 4 * info.width);
+		dst += dstBpl;
+		src += srcBpl;
 
-    for (int x = 0; x < info.width; x++) {
-      // Get pixel from RGBA_8888
-      r = *src_line >> SK_R32_SHIFT;
-      g = *src_line >> SK_G32_SHIFT;
-      b = *src_line >> SK_B32_SHIFT;
-      a = *src_line >> SK_A32_SHIFT;
-      pixel8 = (l_uint8)((r + g + b) / 3);
+	}
+	  pixEndianByteSwap(pixd);
 
-      // Set pixel to LUMA_8
-      SET_DATA_BYTE(dst_line, x, pixel8);
 
-      // Move to the next pixel
-      src_line++;
-    }
-  }
+	AndroidBitmap_unlockPixels(env, bitmap);
 
-  AndroidBitmap_unlockPixels(env, bitmap);
-
-  return (jlong) pixd;
+	return (jint) pixd;
 }
 
 #ifdef __cplusplus
