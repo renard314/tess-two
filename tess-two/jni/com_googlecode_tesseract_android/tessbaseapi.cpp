@@ -20,6 +20,7 @@
 #include "android/bitmap.h"
 #include "common.h"
 #include "baseapi.h"
+#include "ocrclass.h"
 #include "allheaders.h"
 #include <sstream>
 #include <fstream>
@@ -27,6 +28,7 @@
 
 
 static jfieldID field_mNativeData;
+static jmethodID method_onProgressValues;
 
 struct native_data_t {
   tesseract::TessBaseAPI api;
@@ -34,12 +36,76 @@ struct native_data_t {
   void *data;
   bool debug;
 
+  Box* currentTextBox = NULL;
+  l_int32 lastProgress;
+  bool cancel_ocr;
+
+  JNIEnv *cachedEnv;
+  jobject* cachedObject;
+
+  bool isStateValid() {
+
+  	if (cancel_ocr == false && cachedEnv != NULL && cachedObject != NULL) {
+  		return true;
+  	} else {
+  		LOGI("state is cancelled");
+  		return false;
+
+  	}
+  }
+
+
+  void initStateVariables(JNIEnv* env, jobject *object) {
+  	cancel_ocr = false;
+  	cachedEnv = env;
+  	cachedObject = object;
+  	lastProgress = 0;
+  }
+
+  void resetStateVariables() {
+  	cancel_ocr = false;
+  	cachedEnv = NULL;
+  	cachedObject = NULL;
+  	lastProgress = 0;
+  }
+
+
   native_data_t() {
+	currentTextBox = NULL;
+	lastProgress = 0;
     pix = NULL;
     data = NULL;
     debug = false;
+    cachedEnv = NULL;
+    cachedObject = NULL;
+    cancel_ocr = false;
   }
 };
+
+/**
+ * callback for tesseracts monitor
+ */
+bool cancelFunc(void* cancel_this, int words) {
+	native_data_t *nat = (native_data_t*)cancel_this;
+	return nat->cancel_ocr;
+}
+
+/**
+ * callback for tesseracts monitor
+ */
+bool progressJavaCallback(void* progress_this,int progress, int left, int right, int top, int bottom) {
+	native_data_t *nat = (native_data_t*)progress_this;
+	if (nat->isStateValid() && nat->currentTextBox != NULL) {
+		if (progress > nat->lastProgress || left != 0 || right != 0 || top != 0 || bottom != 0) {
+			int x, y, w, h;
+			boxGetGeometry(nat->currentTextBox, &x, &y, &w, &h);
+			nat->cachedEnv->CallVoidMethod(*(nat->cachedObject), method_onProgressValues, progress, (jint) left, (jint) right, (jint) top, (jint) bottom, (jint) x, (jint) (x + w), (jint) y, (jint) (y + h));
+			nat->lastProgress = progress;
+		}
+	}
+	return true;
+}
+
 
 static inline native_data_t * get_native_data(JNIEnv *env, jobject object) {
   return (native_data_t *) (env->GetLongField(object, field_mNativeData));
@@ -64,6 +130,8 @@ void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeClassInit(JNIEnv* e
                                                                        jclass clazz) {
 
   field_mNativeData = env->GetFieldID(clazz, "mNativeData", "J");
+  method_onProgressValues = env->GetMethodID(clazz, "onProgressValues", "(IIIIIIIII)V");
+
 }
 
 void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeConstruct(JNIEnv* env,
@@ -360,7 +428,9 @@ void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeStop(JNIEnv *env,
 
   native_data_t *nat = get_native_data(env, thiz);
 
-  // TODO How do we stop without a monitor?!
+  // stop by setting a flag thats used by the monitor
+	nat->resetStateVariables();
+	nat->cancel_ocr = true;
 }
 
 jint Java_com_googlecode_tesseract_android_TessBaseAPI_nativeMeanConfidence(JNIEnv *env,
@@ -548,17 +618,27 @@ jlong Java_com_googlecode_tesseract_android_TessBaseAPI_nativeGetResultIterator(
   return (jlong) nat->api.GetIterator();
 }
 
+
 jstring Java_com_googlecode_tesseract_android_TessBaseAPI_nativeGetHOCRText(JNIEnv *env,
                                                                             jobject thiz, jint page) {
 
-  native_data_t *nat = get_native_data(env, thiz);
 
-  //TODO propagate up into java
-  char *text = nat->api.GetHOCRText(page,NULL);
+
+  native_data_t *nat = get_native_data(env, thiz);
+  nat->initStateVariables(env, &thiz);
+
+  ETEXT_DESC monitor;
+  monitor.progress_callback = progressJavaCallback;
+  monitor.cancel = cancelFunc;
+  monitor.cancel_this = nat;
+  monitor.progress_this = nat;
+
+  char *text = nat->api.GetHOCRText(page,&monitor);
 
   jstring result = env->NewStringUTF(text);
 
   free(text);
+  nat->resetStateVariables();
 
   return result;
 }
