@@ -24,6 +24,7 @@ TessResultRenderer::TessResultRenderer(const char *outputbase,
     STRING outfile = STRING(outputbase) + STRING(".") + STRING(file_extension_);
     fout_ = fopen(outfile.string(), "wb");
     if (fout_ == NULL) {
+    	fprintf(stderr, "cannot create outfile = %s\n",outfile.c_str());
       happy_ = false;
     }
   }

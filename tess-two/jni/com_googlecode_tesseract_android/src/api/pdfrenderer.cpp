@@ -162,8 +162,8 @@ char* TessPDFRenderer::GetPDFTextObjects(TessBaseAPI* api,
       //
       //                                Rotate              RTL    Translate
       //
-      // [ x' y' 1 ]  = [ x y 1 ] [ cos𝜃 -sin𝜃 0 ]  [ -1 0 0 ] [ 1 0 0 ]
-      //                          [ sin𝜃  cos𝜃 0 ]  [  0 1 0 ] [ 0 1 0 ]
+      // [ x' y' 1 ]  = [ x y 1 ] [ cos���� -sin���� 0 ]  [ -1 0 0 ] [ 1 0 0 ]
+      //                          [ sin����  cos���� 0 ]  [  0 1 0 ] [ 0 1 0 ]
       //                          [   0    0   1 ]  [  0 0 1 ] [ x y 1 ]
       //
       double theta = atan2(static_cast<double>(line_y1 - line_y2),
@@ -388,8 +388,10 @@ bool TessPDFRenderer::BeginDocumentHandler() {
 
   snprintf(buf, sizeof(buf), "%s/pdf.ttf", datadir_);
   FILE *fp = fopen(buf, "rb");
-  if (!fp)
-    return false;
+  if (!fp) {
+  	fprintf(stderr, "cannot open pdf font = %s/pdf.ttf\n",datadir_);
+	return false;
+  }
   fseek(fp, 0, SEEK_END);
   long int size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
@@ -543,8 +545,10 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
   Pix *pix = api->GetInputImage();
   char *filename = (char *)api->GetInputName();
   int ppi = api->GetSourceYResolution();
-  if (!pix || ppi <= 0)
-    return false;
+  if (!pix || ppi <= 0) {
+		fprintf(stderr, "ppi = %i, pix = %i.\n", ppi, pix);
+	    return false;
+  }
   double width = pixGetWidth(pix) * 72.0 / ppi;
   double height = pixGetHeight(pix) * 72.0 / ppi;
 
@@ -606,6 +610,7 @@ bool TessPDFRenderer::AddImageHandler(TessBaseAPI* api) {
 
   char *pdf_object;
   if (!imageToPDFObj(pix, filename, obj_, &pdf_object, &objsize)) {
+	fprintf(stderr, "imageToPDFObj failed.\n");
     return false;
   }
   AppendData(pdf_object, objsize);
