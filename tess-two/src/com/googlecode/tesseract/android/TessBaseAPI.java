@@ -19,6 +19,7 @@ package com.googlecode.tesseract.android;
 
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.googlecode.leptonica.android.Pixa;
@@ -108,6 +109,8 @@ public class TessBaseAPI {
     
     /** Default OCR engine mode. */
     public static final int OEM_DEFAULT = 3;
+
+	private static final String LOG_TAG = TessBaseAPI.class.getSimpleName();
 
     
     /**
@@ -553,6 +556,24 @@ public class TessBaseAPI {
     public String getBoxText(int page){
         return nativeGetBoxText(page);
     }
+    
+    public void stop() {
+    	nativeStop();
+    }
+    
+	/**
+	 * called from native code
+	 * 
+	 * @param percent
+	 * @param left
+	 * @param right
+	 * @param top
+	 * @param bottom
+	 */
+	private void onProgressValues(final int percent, final int left, final int right, final int top, final int bottom, final int left2, final int right2, final int top2, final int bottom2) {
+		Log.i(LOG_TAG,"onProgressValues = "+percent);
+		
+	}
 
     // ******************
     // * Native methods *
@@ -625,4 +646,7 @@ public class TessBaseAPI {
     private native void nativeSetOutputName(String name);
     
     private native void nativeReadConfigFile(String fileName);
+	
+    private native int nativeStop();
+	
 }
