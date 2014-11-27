@@ -60,6 +60,7 @@ struct native_data_t {
   	cachedEnv = env;
   	cachedObject = object;
   	lastProgress = 0;
+  	boxSetGeometry(currentTextBox,0,0,0,0);
   }
 
   void resetStateVariables() {
@@ -67,11 +68,12 @@ struct native_data_t {
   	cachedEnv = NULL;
   	cachedObject = NULL;
   	lastProgress = 0;
+  	boxSetGeometry(currentTextBox,0,0,0,0);
   }
 
 
   native_data_t() {
-	currentTextBox = NULL;
+	currentTextBox = boxCreate(0,0,0,0);
 	lastProgress = 0;
     pix = NULL;
     data = NULL;
@@ -79,6 +81,9 @@ struct native_data_t {
     cachedEnv = NULL;
     cachedObject = NULL;
     cancel_ocr = false;
+  }
+  ~native_data_t(){
+	 boxDestroy(&currentTextBox);
   }
 };
 
@@ -273,6 +278,9 @@ void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeSetImagePix(JNIEnv 
 
   native_data_t *nat = get_native_data(env, thiz);
   nat->api.SetImage(pixd);
+  l_int32 width = pixGetWidth(pixd);
+  l_int32 height = pixGetHeight(pixd);
+  boxSetGeometry(nat->currentTextBox,0,0,width, height);
 
   // Since Tesseract doesn't take ownership of the memory, we keep a pointer in the native
   // code struct. We need to free that pointer when we release our instance of Tesseract or
