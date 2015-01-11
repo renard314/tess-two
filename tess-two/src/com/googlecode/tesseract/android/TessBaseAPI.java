@@ -48,6 +48,8 @@ public class TessBaseAPI {
         nativeClassInit();
     }
 
+    private OcrProgressListener mProgressListener;
+
     public static final class PageSegMode {
     	/** Orientation and script detection only. */
     	public static final int PSM_OSD_ONLY = 0;
@@ -141,8 +143,9 @@ public class TessBaseAPI {
     /**
      * Constructs an instance of TessBaseAPI.
      */
-    public TessBaseAPI() {
+    public TessBaseAPI(OcrProgressListener listener) {
         nativeConstruct();
+        mProgressListener = listener;
     }
 
     /**
@@ -242,6 +245,7 @@ public class TessBaseAPI {
 
         return nativeInitOem(datapath, language, ocrEngineMode);	
     }
+
 
     /**
      * Returns the languages string used in the last valid initialization.
@@ -412,11 +416,11 @@ public class TessBaseAPI {
     }
     
     /**
-     * return a html representation of the recognized text that can be used by {@link android.text.Html.fromHtml}
+     * return a html representation of the recognized text that can be used by {@link android.text.Html.fromHtml()}
      * @return
      */
     public String getHtmlText() {
-        return nativeGetHtmlText();    	
+        return nativeGetHtmlText();
     }
     
 
@@ -565,13 +569,21 @@ public class TessBaseAPI {
 	 * called from native code
 	 * 
 	 * @param percent
-	 * @param left
-	 * @param right
-	 * @param top
-	 * @param bottom
+	 * @param left of current word box
+	 * @param right of current word box
+	 * @param top of current word box
+	 * @param bottom of current word box
+     * @param left2 of total text bounding box
+     * @param right2 of total text bounding box
+     * @param top2 of total text bounding box
+     * @param bottom2 of total text bounding box
 	 */
 	private void onProgressValues(final int percent, final int left, final int right, final int top, final int bottom, final int left2, final int right2, final int top2, final int bottom2) {
 		Log.i(LOG_TAG,"onProgressValues = "+percent);
+        
+        if(mProgressListener!=null){
+            mProgressListener.onProgressValues(percent, left,right,top,bottom,left2,right2,top2,bottom2);
+        }
 		
 	}
 

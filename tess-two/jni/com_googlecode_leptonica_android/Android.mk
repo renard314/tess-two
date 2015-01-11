@@ -20,6 +20,9 @@ LOCAL_SRC_FILES := \
 LOCAL_CFLAGS := \
   -DHAVE_CONFIG_H
 
+LOCAL_C_INCLUDES := \
+    $(LIBPNG_PATH)
+
 LOCAL_LDLIBS := \
   -lz
 
@@ -27,13 +30,14 @@ LOCAL_LDLIBS := \
 
 LOCAL_SRC_FILES += \
   box.cpp \
+  boxa.cpp \
   pix.cpp \
   pixa.cpp \
   utilities.cpp \
   readfile.cpp \
   writefile.cpp \
   jni.cpp
-  
+
 LOCAL_C_INCLUDES += \
   $(LOCAL_PATH) \
   $(LEPTONICA_PATH)/src
@@ -43,7 +47,7 @@ LOCAL_LDLIBS += \
   -llog
 
 # common
-LOCAL_SHARED_LIBRARIES:= libpng
+LOCAL_SHARED_LIBRARIES:= libpngo
 
 LOCAL_PRELINK_MODULE:= false
 

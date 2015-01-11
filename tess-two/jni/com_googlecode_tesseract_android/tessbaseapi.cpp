@@ -27,6 +27,7 @@
 #include <iostream>
 
 
+
 static jfieldID field_mNativeData;
 static jmethodID method_onProgressValues;
 
@@ -60,7 +61,14 @@ struct native_data_t {
   	cachedEnv = env;
   	cachedObject = object;
   	lastProgress = 0;
-  	boxSetGeometry(currentTextBox,0,0,0,0);
+  	if(pix){
+  		l_int32 width = pixGetWidth(pix);
+  		l_int32 height = pixGetHeight(pix);
+    	boxSetGeometry(currentTextBox,0,0,width, height);
+    	LOGI("setting ocr box %i,%i",width,height);
+  	}
+
+  	//boxSetGeometry(currentTextBox,0,0,0,0);
   }
 
   void resetStateVariables() {
@@ -99,9 +107,11 @@ bool cancelFunc(void* cancel_this, int words) {
  * callback for tesseracts monitor
  */
 bool progressJavaCallback(void* progress_this,int progress, int left, int right, int top, int bottom) {
+
 	native_data_t *nat = (native_data_t*)progress_this;
 	if (nat->isStateValid() && nat->currentTextBox != NULL) {
 		if (progress > nat->lastProgress || left != 0 || right != 0 || top != 0 || bottom != 0) {
+	    	LOGI("state changed");
 			int x, y, w, h;
 			boxGetGeometry(nat->currentTextBox, &x, &y, &w, &h);
 			nat->cachedEnv->CallVoidMethod(*(nat->cachedObject), method_onProgressValues, progress, (jint) left, (jint) right, (jint) top, (jint) bottom, (jint) x, (jint) (x + w), (jint) y, (jint) (y + h));
@@ -278,10 +288,6 @@ void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeSetImagePix(JNIEnv 
 
   native_data_t *nat = get_native_data(env, thiz);
   nat->api.SetImage(pixd);
-  l_int32 width = pixGetWidth(pixd);
-  l_int32 height = pixGetHeight(pixd);
-  boxSetGeometry(nat->currentTextBox,0,0,width, height);
-
   // Since Tesseract doesn't take ownership of the memory, we keep a pointer in the native
   // code struct. We need to free that pointer when we release our instance of Tesseract or
   // attempt to set a new image using one of the nativeSet* methods.

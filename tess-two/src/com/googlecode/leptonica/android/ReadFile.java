@@ -28,6 +28,7 @@ import java.io.File;
  */
 public class ReadFile {
     static {
+		System.loadLibrary("png");
         System.loadLibrary("lept");
     }
 
