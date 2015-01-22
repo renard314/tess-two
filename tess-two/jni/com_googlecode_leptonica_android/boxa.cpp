@@ -25,6 +25,10 @@ void Java_com_googlecode_leptonica_android_Boxa_nativeDestroy(JNIEnv *env, jclas
   boxaDestroy(&boxa);
 }
 
+jint Java_com_googlecode_leptonica_android_Boxa_nativeGetCount(JNIEnv *env, jclass clazz, jlong nativeBoxa) {
+  BOXA *boxa = (BOXA *) nativeBoxa;
+  return boxaGetCount(boxa);
+}
 
 jboolean Java_com_googlecode_leptonica_android_Boxa_nativeGetGeometry(JNIEnv *env, jclass clazz,
                                                                      jlong nativeBoxa,
@@ -35,6 +39,7 @@ jboolean Java_com_googlecode_leptonica_android_Boxa_nativeGetGeometry(JNIEnv *en
   l_int32 x, y, w, h;
 
   if (boxaGetBoxGeometry(boxa,index,  &x, &y, &w, &h)) {
+    env->ReleaseIntArrayElements(dimensions, dimensionArray, 0);
     return JNI_FALSE;
   }
 
