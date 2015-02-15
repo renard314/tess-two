@@ -225,7 +225,7 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
     if (monitor != NULL) {
       monitor->ocr_alive = TRUE;
       if (pass_n == 1) {
-        monitor->progress = 30 + 50 * w / words->size();
+        monitor->progress = 80 * w / words->size();
         if (monitor->progress_callback!=NULL){
               	TBOX box = word->word->word->bounding_box();
               	(*monitor->progress_callback)(monitor->progress_this,monitor->progress,box.left(), box.right(), box.top(), box.bottom());
