@@ -247,13 +247,50 @@ jlong Java_com_googlecode_leptonica_android_Rotate_nativeRotate(JNIEnv *env, jcl
 
 jlong Java_com_googlecode_leptonica_android_Rotate_nativeRotateOrth(JNIEnv *env, jclass clazz,
                                                                jlong nativePix, jint quads) {
-	  LOGV("%s",__FUNCTION__);
-
-  PIX *pixs = (PIX *) nativePix;
-  PIX *pixd;
-  pixd = pixRotateOrth(pixs,(int)quads);
-  return (jlong) pixd;
+	LOGV("%s",__FUNCTION__);
+	PIX *pixs = (PIX *) nativePix;
+	PIX *pixd;
+	pixd = pixRotateOrth(pixs,(int)quads);
+	return (jlong) pixd;
 }
+
+/**********
+ * Bilinear *
+ **********/
+
+jlong Java_com_googlecode_leptonica_android_Bilinear_nativeBilinear(JNIEnv *env, jclass clazz, jlong nativePix, jfloatArray dest, jfloatArray src) {
+	LOGV("%s",__FUNCTION__);
+
+	jfloat* dest2 = env->GetFloatArrayElements( dest,0);
+	jfloat* src2 = env->GetFloatArrayElements( src,0);
+
+	PIX *pixs = (PIX *) nativePix;
+
+	PTA* orgPoints = ptaCreate(4);
+	PTA* mappedPoints = ptaCreate(4);
+
+	ptaAddPt(orgPoints,src2[0],src2[1]);
+	ptaAddPt(orgPoints,src2[2],src2[3]);
+	ptaAddPt(orgPoints,src2[4],src2[5]);
+	ptaAddPt(orgPoints,src2[6],src2[7]);
+
+	ptaAddPt(mappedPoints, dest2[0], dest2[1]);
+	ptaAddPt(mappedPoints, dest2[2], dest2[3]);
+	ptaAddPt(mappedPoints, dest2[4], dest2[5]);
+	ptaAddPt(mappedPoints, dest2[6], dest2[7]);
+	LOGI("src points: (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f)",src2[0],src2[1],src2[2],src2[3],src2[4],src2[5],src2[6],src2[7]);
+	LOGI("dest points: (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f)",dest2[0],dest2[1],dest2[2],dest2[3],dest2[4],dest2[5],dest2[6],dest2[7]);
+
+	Pix* pixBilinar = pixBilinearPta(pixs,mappedPoints,orgPoints,L_BRING_IN_WHITE);
+
+	ptaDestroy(&orgPoints);
+	ptaDestroy(&mappedPoints);
+	env->ReleaseFloatArrayElements(dest, dest2, 0);
+	env->ReleaseFloatArrayElements(src, src2, 0);
+
+	return (jlong) pixBilinar;
+}
+
 
 #ifdef __cplusplus
 }
