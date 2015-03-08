@@ -15,9 +15,9 @@
  */
 
 #include "common.h"
-
 #include <string.h>
 #include <android/bitmap.h>
+#include <cmath>
 
 #ifdef __cplusplus
 extern "C" {
@@ -217,6 +217,53 @@ jlong Java_com_googlecode_leptonica_android_Clip_nativeClipRectangle(JNIEnv *env
   return (jlong) pixd;
 }
 
+
+jlong Java_com_googlecode_leptonica_android_Clip_nativeClipRectangle2(JNIEnv *env, jclass clazz, jlong nativePix, jlong nativeBox) {
+	LOGV("%s",__FUNCTION__);
+
+	PIX *pixs = (PIX *) nativePix;
+	BOX *box = (BOX *) nativeBox;
+	Box* boxc = NULL;
+	Pix* pixd;
+	l_int32	bx, by, bw, bh, w, h, d, x, y;
+
+	/* Clip the input box to the pix */
+	pixGetDimensions(pixs, &w, &h, &d);
+	if ((boxc = boxClipToRectangle(box, w, h)) == NULL) {
+		L_WARNING("box doesn't overlap pix\n", __FUNCTION__);
+		return 0;
+	}
+	boxGetGeometry(box, &x, &y, &bw, &bh);
+
+	/* Extract the block */
+	if ((pixd = pixCreate(bw, bh, d)) == NULL) {
+		L_WARNING("pixd not made\n", __FUNCTION__);
+		return 0;
+	}
+
+	boxGetGeometry(boxc, &bx, &by, &bw, &bh);
+	pixCopyResolution(pixd, pixs);
+	pixCopyColormap(pixd, pixs);
+
+	if(x<0){
+		x = std::abs(x);
+	} else {
+		x = 0;
+	}
+	if(y<0){
+		y = std::abs(y);
+	} else {
+		y = 0;
+	}
+
+	LOGV("pixRasterop to (%i,%i) from (%i,%i); w/h = %i,%i",x,y,bx,by,bw,bh);
+	//copy clip region into new pix
+	pixRasterop(pixd, x, y, bw, bh, PIX_SRC, pixs, bx, by);
+
+	boxDestroy(&boxc);
+	return (jlong) pixd;
+}
+
 /**********
  * Rotate *
  **********/
@@ -258,7 +305,7 @@ jlong Java_com_googlecode_leptonica_android_Rotate_nativeRotateOrth(JNIEnv *env,
  * Bilinear *
  **********/
 
-jlong Java_com_googlecode_leptonica_android_Bilinear_nativeBilinear(JNIEnv *env, jclass clazz, jlong nativePix, jfloatArray dest, jfloatArray src) {
+jlong Java_com_googlecode_leptonica_android_Projective_nativeProjectivePtaColor(JNIEnv *env, jclass clazz, jlong nativePix, jfloatArray dest, jfloatArray src) {
 	LOGV("%s",__FUNCTION__);
 
 	jfloat* dest2 = env->GetFloatArrayElements( dest,0);
@@ -281,7 +328,7 @@ jlong Java_com_googlecode_leptonica_android_Bilinear_nativeBilinear(JNIEnv *env,
 	LOGI("src points: (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f)",src2[0],src2[1],src2[2],src2[3],src2[4],src2[5],src2[6],src2[7]);
 	LOGI("dest points: (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f)",dest2[0],dest2[1],dest2[2],dest2[3],dest2[4],dest2[5],dest2[6],dest2[7]);
 
-	Pix* pixBilinar = pixBilinearPta(pixs,mappedPoints,orgPoints,L_BRING_IN_WHITE);
+	Pix* pixBilinar = pixProjectivePtaColor(pixs,mappedPoints,orgPoints,0xffffff00);
 
 	ptaDestroy(&orgPoints);
 	ptaDestroy(&mappedPoints);

@@ -21,7 +21,7 @@ package com.googlecode.leptonica.android;
  * 
  * @author alanv@google.com (Alan Viverette)
  */
-public class Bilinear {
+public class Projective {
     static {
         System.loadLibrary("lept");
     }
@@ -29,22 +29,20 @@ public class Bilinear {
 
 
     /**
-     *  pixBilinearPta()
+     *  pixProjectivePtaColor()
      *
-     *      Input:  pixs (all depths; colormap ok)
-     *              dest  (4 pts of final coordinate space)
-     *              src  (4 pts of initial coordinate space)
+     *      Input:  pixs (32 bpp)
+     *              ptad  (4 pts of final coordinate space)
+     *              ptas  (4 pts of initial coordinate space)
+     *
      *      Return: pixd, or null on error
      *
-     *  Notes:
-     *      (1) Brings in either black or white pixels from the boundary
-     *      (2) Removes any existing colormap, if necessary, before transforming
-     */
-    public static Pix bilinear(Pix pixs, float[] dest, float[] src) {
+     **/
+    public static Pix projectiveTransform(Pix pixs, float[] dest, float[] src) {
         if (pixs == null) {
             throw new IllegalArgumentException("Source pix must be non-null");
         }
-        final long result = nativeBilinear(pixs.getNativePix(), dest, src);
+        final long result = nativeProjectivePtaColor(pixs.getNativePix(), dest, src);
         return new Pix(result);
     }
 
@@ -52,6 +50,5 @@ public class Bilinear {
     // ***************
     // * NATIVE CODE *
     // ***************
-
-    private static native long nativeBilinear(long pix , float[] dest, float[] src);
+    private static native long nativeProjectivePtaColor(long pix , float[] dest, float[] src);
 }

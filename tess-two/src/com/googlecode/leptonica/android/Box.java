@@ -57,8 +57,7 @@ public class Box {
     }
 
     /**
-     * Creates a box with the specified geometry. All dimensions should be
-     * non-negative and specified in pixels.
+     * Creates a box with the specified geometry.
      *
      * @param x X-coordinate of the top-left corner of the box.
      * @param y Y-coordinate of the top-left corner of the box.
@@ -66,10 +65,6 @@ public class Box {
      * @param h Height of the box.
      */
     public Box(int x, int y, int w, int h) {
-        if (x < 0 || y < 0 || w < 0 || h < 0) {
-            throw new IllegalArgumentException("All box dimensions must be non-negative");
-        }
-        
         long nativeBox = nativeCreate(x, y, w, h);
 
         if (nativeBox == 0) {
