@@ -43,7 +43,11 @@ public class Projective {
             throw new IllegalArgumentException("Source pix must be non-null");
         }
         final long result = nativeProjectivePtaColor(pixs.getNativePix(), dest, src);
-        return new Pix(result);
+        if(result!=0){
+            return new Pix(result);
+        } else {
+            return null;
+        }
     }
 
 

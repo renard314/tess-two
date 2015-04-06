@@ -16,10 +16,13 @@
 
 package com.googlecode.leptonica.android;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Image input and output methods.
@@ -32,6 +35,8 @@ public class ReadFile {
         System.loadLibrary("lept");
     }
 
+    private static final String LOG_TAG = ReadFile.class.getSimpleName();
+
     /**
      * Creates a 32bpp Pix object from encoded data. Supported formats are BMP
      * and JPEG.
@@ -39,20 +44,18 @@ public class ReadFile {
      * @param encodedData JPEG or BMP encoded byte data.
      * @return a 32bpp Pix object
      */
-    public static Pix readMem(byte[] encodedData) {
-        if (encodedData == null)
-            throw new IllegalArgumentException("Image data byte array must be non-null");
+    public static Pix readMem(byte[] encodedData, Context ctx) {
+        if (encodedData == null) {
+            return null;
+        }
+            final BitmapFactory.Options opts = new BitmapFactory.Options();
+            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
-        final BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            final Bitmap bmp = BitmapFactory.decodeByteArray(encodedData, 0, encodedData.length, opts);
+            final Pix pix = readBitmap(bmp);
+            bmp.recycle();
+            return pix;
 
-        final Bitmap bmp = BitmapFactory.decodeByteArray(encodedData, 0, encodedData.length,
-                opts);
-        final Pix pix = readBitmap(bmp);
-
-        bmp.recycle();
-
-        return pix;
     }
 
     /**
@@ -110,25 +113,6 @@ public class ReadFile {
         return nativeReplaceBytes8(pixs.mNativePix, pixelData, width, height);
     }
 
-    /**
-     * Creates a Pixa object from encoded files in a directory. Supported
-     * formats are BMP and JPEG.
-     *
-     * @param dir The directory containing the files.
-     * @param prefix The prefix of the files to load into a Pixa.
-     * @return a Pixa object containing one Pix for each file
-     */
-    public static Pixa readFiles(File dir, String prefix) {
-        if (dir == null)
-            throw new IllegalArgumentException("Directory must be non-null");
-        if (!dir.exists())
-            throw new IllegalArgumentException("Directory does not exist");
-        if (!dir.canRead())
-            throw new IllegalArgumentException("Cannot read directory");
-
-        // TODO: Remove or fix this.
-        throw new RuntimeException("readFiles() is not current supported");
-    }
 
     /**
      * Creates a Pix object from encoded file data. Supported formats are BMP
@@ -138,22 +122,36 @@ public class ReadFile {
      * @return a Pix object
      */
     public static Pix readFile(File file) {
-        if (file == null)
-            throw new IllegalArgumentException("File must be non-null");
-        if (!file.exists())
-            throw new IllegalArgumentException("File does not exist");
-        if (!file.canRead())
-            throw new IllegalArgumentException("Cannot read file");
+        if (file == null) {
+            Log.w(LOG_TAG,"File must be non-null");
+            return null;
+        }
+        if (!file.exists()) {
+            Log.w(LOG_TAG,"File does not exist");
+            return null;
+        }
+        if (!file.canRead()) {
+            Log.w(LOG_TAG,"Cannot read file");
+            return null;
+        }
 
+        final long nativePix = nativeReadFile(file.getAbsolutePath());
+
+        if (nativePix != 0) {
+            return new Pix(nativePix);
+        }
         final BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
         final Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
-        final Pix pix = readBitmap(bmp);
+        if (bmp!=null) {
+            final Pix pix = readBitmap(bmp);
+            bmp.recycle();
+            return pix;
 
-        bmp.recycle();
+        }
 
-        return pix;
+        return null;
     }
 
     /**
@@ -164,15 +162,21 @@ public class ReadFile {
      * @return a Pix object
      */
     public static Pix readBitmap(Bitmap bmp) {
-        if (bmp == null)
-            throw new IllegalArgumentException("Bitmap must be non-null");
-        if (bmp.getConfig() != Bitmap.Config.ARGB_8888)
-            throw new IllegalArgumentException("Bitmap config must be ARGB_8888");
+        if (bmp == null) {
+            Log.w(LOG_TAG, "Bitmap must be non-null");
+            return null;
+        }
+        if (bmp.getConfig() != Bitmap.Config.ARGB_8888) {
+            Log.w(LOG_TAG, "Bitmap config must be ARGB_8888");
+            return null;
+        }
 
         long nativePix = nativeReadBitmap(bmp);
 
-        if (nativePix == 0)
-            throw new RuntimeException("Failed to read pix from bitmap");
+        if (nativePix == 0) {
+            Log.w(LOG_TAG, "Failed to read pix from bitmap");
+            return null;
+        }
 
         return new Pix(nativePix);
     }
