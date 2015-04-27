@@ -47,3 +47,6 @@ android {
         release.setRoot('build-types/release')
     }
 }
+dependencies {
+    compile 'com.squareup.picasso:picasso:2.5.2'
+}

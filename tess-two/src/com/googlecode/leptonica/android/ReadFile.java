@@ -21,6 +21,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.squareup.picasso.Picasso;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -31,7 +33,7 @@ import java.io.IOException;
  */
 public class ReadFile {
     static {
-		System.loadLibrary("pngo");
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 
@@ -48,13 +50,13 @@ public class ReadFile {
         if (encodedData == null) {
             return null;
         }
-            final BitmapFactory.Options opts = new BitmapFactory.Options();
-            opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        final BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
-            final Bitmap bmp = BitmapFactory.decodeByteArray(encodedData, 0, encodedData.length, opts);
-            final Pix pix = readBitmap(bmp);
-            bmp.recycle();
-            return pix;
+        final Bitmap bmp = BitmapFactory.decodeByteArray(encodedData, 0, encodedData.length, opts);
+        final Pix pix = readBitmap(bmp);
+        bmp.recycle();
+        return pix;
 
     }
 
@@ -62,8 +64,8 @@ public class ReadFile {
      * Creates an 8bpp Pix object from raw 8bpp grayscale pixels.
      *
      * @param pixelData 8bpp grayscale pixel data.
-     * @param width The width of the input image.
-     * @param height The height of the input image.
+     * @param width     The width of the input image.
+     * @param height    The height of the input image.
      * @return an 8bpp Pix object
      */
     public static Pix readBytes8(byte[] pixelData, int width, int height) {
@@ -88,10 +90,10 @@ public class ReadFile {
      * Replaces the bytes in an 8bpp Pix object with raw grayscale 8bpp pixels.
      * Width and height be identical to the input Pix.
      *
-     * @param pixs The Pix whose bytes will be replaced.
+     * @param pixs      The Pix whose bytes will be replaced.
      * @param pixelData 8bpp grayscale pixel data.
-     * @param width The width of the input image.
-     * @param height The height of the input image.
+     * @param width     The width of the input image.
+     * @param height    The height of the input image.
      * @return an 8bpp Pix object
      */
     public static boolean replaceBytes8(Pix pixs, byte[] pixelData, int width, int height) {
@@ -113,6 +115,10 @@ public class ReadFile {
         return nativeReplaceBytes8(pixs.mNativePix, pixelData, width, height);
     }
 
+    public static Pix readFile(File file) {
+        return readFile(null, file);
+    }
+
 
     /**
      * Creates a Pix object from encoded file data. Supported formats are BMP
@@ -121,17 +127,17 @@ public class ReadFile {
      * @param file The JPEG or BMP-encoded file to read in as a Pix.
      * @return a Pix object
      */
-    public static Pix readFile(File file) {
+    public static Pix readFile(Context context, File file) {
         if (file == null) {
-            Log.w(LOG_TAG,"File must be non-null");
+            Log.w(LOG_TAG, "File must be non-null");
             return null;
         }
         if (!file.exists()) {
-            Log.w(LOG_TAG,"File does not exist");
+            Log.w(LOG_TAG, "File does not exist");
             return null;
         }
         if (!file.canRead()) {
-            Log.w(LOG_TAG,"Cannot read file");
+            Log.w(LOG_TAG, "Cannot read file");
             return null;
         }
 
@@ -140,17 +146,40 @@ public class ReadFile {
         if (nativePix != 0) {
             return new Pix(nativePix);
         }
-        final BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
-        final Bitmap bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
-        if (bmp!=null) {
+        Bitmap bmp = null;
+        if (context != null) {
+            bmp = loadWithPicasso(context, file);
+        }
+        if (bmp == null) {
+            bmp = loadWithBitmapFactory(file);
+        }
+
+        if (bmp != null) {
             final Pix pix = readBitmap(bmp);
             bmp.recycle();
             return pix;
-
         }
 
+        return null;
+    }
+
+    private static Bitmap loadWithPicasso(Context context, File file) {
+        try {
+            return Picasso.with(context).load(file).get();
+        } catch (IOException ignored) {
+        }
+        return null;
+    }
+
+    private static Bitmap loadWithBitmapFactory(File file) {
+        final BitmapFactory.Options opts = new BitmapFactory.Options();
+        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        try {
+            return BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
+        } catch (OutOfMemoryError ignored) {
+
+        }
         return null;
     }
 
@@ -170,6 +199,7 @@ public class ReadFile {
             Log.w(LOG_TAG, "Bitmap config must be ARGB_8888");
             return null;
         }
+
 
         long nativePix = nativeReadBitmap(bmp);
 
