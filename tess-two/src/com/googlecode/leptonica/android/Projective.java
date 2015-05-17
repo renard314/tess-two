@@ -17,9 +17,7 @@
 package com.googlecode.leptonica.android;
 
 /**
- * Image scaling methods.
- * 
- * @author alanv@google.com (Alan Viverette)
+ * @author renard
  */
 public class Projective {
     static {
