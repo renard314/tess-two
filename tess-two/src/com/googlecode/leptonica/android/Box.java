@@ -16,6 +16,8 @@
 
 package com.googlecode.leptonica.android;
 
+import android.graphics.Point;
+
 /**
  * Wrapper for Leptonica's native BOX.
  *
@@ -42,7 +44,7 @@ public class Box {
      * A pointer to the native Box object. This is used internally by native
      * code.
      */
-    final long mNativeBox;
+    private final long mNativeBox;
 
     private boolean mRecycled = false;
 
@@ -51,7 +53,7 @@ public class Box {
      *
      * @param nativeBox A pointer to the native BOX.
      */
-    Box(long nativeBox) {
+    public Box(long nativeBox) {
         mNativeBox = nativeBox;
         mRecycled = false;
     }
@@ -74,7 +76,14 @@ public class Box {
         mNativeBox = nativeBox;
         mRecycled = false;
     }
-    
+
+    public Point getCenter() {
+        int[] g = new int[4];
+        getGeometry(g);
+        return new Point(g[0]+g[2]/2,g[1]+g[3]/2);
+    }
+
+
     /**
      * Returns the box's x-coordinate in pixels.
      * 
@@ -153,11 +162,8 @@ public class Box {
         }
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        recycle();
-
-        super.finalize();
+    public long getNativeBox() {
+        return mNativeBox;
     }
 
     // ***************
@@ -171,4 +177,5 @@ public class Box {
     private static native int nativeGetHeight(long nativeBox);
     private static native void nativeDestroy(long nativeBox);
     private static native boolean nativeGetGeometry(long nativeBox, int[] geometry);
+
 }

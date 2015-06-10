@@ -197,7 +197,7 @@ public class Pixa implements Iterable<Pix> {
      *            Constants.L_CLONE.
      */
     public void addBox(Box box, int mode) {
-        nativeAddBox(mNativePixa, box.mNativeBox, mode);
+        nativeAddBox(mNativePixa, box.getNativeBox(), mode);
     }
 
     /**
@@ -209,7 +209,7 @@ public class Pixa implements Iterable<Pix> {
      *            Constants.L_CLONE.
      */
     public void add(Pix pix, Box box, int mode) {
-        nativeAdd(mNativePixa, pix.mNativePix, box.mNativeBox, mode);
+        nativeAdd(mNativePixa, pix.mNativePix, box.getNativeBox(), mode);
     }
 
     /**
@@ -361,7 +361,7 @@ public class Pixa implements Iterable<Pix> {
      * @param box The Box to replace the existing Box.
      */
     public void replacePix(int index, Pix pix, Box box) {
-        nativeReplacePix(mNativePixa, index, pix.mNativePix, box.mNativeBox);
+        nativeReplacePix(mNativePixa, index, pix.mNativePix, box.getNativeBox());
     }
 
     /**

@@ -12,7 +12,7 @@ public class Clip {
      * @return
      */
     public static Pix clipRectangle2(Pix source, Box box){
-        int result = nativeClipRectangle2(source.getNativePix(), box.mNativeBox);
+        int result = nativeClipRectangle2(source.getNativePix(), box.getNativeBox());
         if (result!=0) {
             return new Pix(result);
         }
@@ -21,7 +21,7 @@ public class Clip {
 
 
     public static Pix clipRectangle(Pix source, Box box){
-    	int result = nativeClipRectangle(source.getNativePix(), box.mNativeBox);
+    	int result = nativeClipRectangle(source.getNativePix(), box.getNativeBox());
     	if (result!=0) {
     		return new Pix(result);
     	}
