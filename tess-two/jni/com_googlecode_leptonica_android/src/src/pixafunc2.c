@@ -270,7 +270,7 @@ PIXA    *pixat;
             continue;
         }
         pixt1 = pixaGetPix(pixat, i, L_CLONE);
-        pixRasterop(pixd, xb, yb, wb, hb, PIX_SRC, pixt1, 0, 0);
+        pixRasterop(pixd, xb, yb, wb, hb, PIX_SRC | PIX_DST, pixt1, 0, 0);
         pixDestroy(&pixt1);
     }
 
