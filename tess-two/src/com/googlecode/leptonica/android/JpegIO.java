@@ -29,6 +29,7 @@ import java.io.IOException;
  */
 public class JpegIO {
     static {
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 

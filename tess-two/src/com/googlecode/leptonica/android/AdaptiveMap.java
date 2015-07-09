@@ -23,7 +23,8 @@ package com.googlecode.leptonica.android;
  */
 public class AdaptiveMap {
     static {
-		System.loadLibrary("lept");
+        System.loadLibrary("pngo");
+        System.loadLibrary("lept");
     }
 
     // Background normalization constants

@@ -30,6 +30,7 @@ import java.util.Iterator;
  */
 public class Pixa implements Iterable<Pix> {
     static {
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 

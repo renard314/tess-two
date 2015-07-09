@@ -21,6 +21,7 @@ package com.googlecode.leptonica.android;
  */
 public class Projective {
     static {
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 
