@@ -25,6 +25,7 @@ import android.graphics.Rect;
  */
 public class Pix {
     static {
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 

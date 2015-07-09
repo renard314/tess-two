@@ -25,6 +25,7 @@ import android.graphics.Point;
  */
 public class Box {
     static {
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 
