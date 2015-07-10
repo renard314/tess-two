@@ -54,7 +54,7 @@ public class Pix {
         mNativePix = nativePix;
         mRecycled = false;
     }
-    
+
     public Pix(int width, int height, int depth) {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Pix width and height must be > 0");
@@ -99,7 +99,7 @@ public class Pix {
      * Returns an array of this image's dimensions. See Pix.INDEX_* for indices.
      *
      * @return an array of this image's dimensions or <code>null</code> on
-     *         failure
+     * failure
      */
     public int[] getDimensions() {
         int[] dimensions = new int[4];
@@ -180,9 +180,9 @@ public class Pix {
      * Creates a new Pix from raw Pix data obtained from getData().
      *
      * @param pixData Raw pix data obtained from getData().
-     * @param width The width of the original Pix.
-     * @param height The height of the original Pix.
-     * @param depth The bit-depth of the original Pix.
+     * @param width   The width of the original Pix.
+     * @param height  The height of the original Pix.
+     * @param depth   The bit-depth of the original Pix.
      * @return a new Pix or <code>null</code> on error
      */
     public static Pix createFromPix(byte[] pixData, int width, int height, int depth) {
@@ -233,17 +233,18 @@ public class Pix {
     public int getDepth() {
         return nativeGetDepth(mNativePix);
     }
-    
-    public int getRefCount(){
-    	return nativeGetRefCount(mNativePix);
+
+    public int getRefCount() {
+        return nativeGetRefCount(mNativePix);
     }
+
     /**
      * Returns the {@link android.graphics.Color} at the specified location.
      *
      * @param x The x coordinate (0...width-1) of the pixel to return.
      * @param y The y coordinate (0...height-1) of the pixel to return.
      * @return The argb {@link android.graphics.Color} at the specified
-     *         coordinate.
+     * coordinate.
      * @throws IllegalArgumentException If x, y exceeds the image bounds.
      */
     public int getPixel(int x, int y) {
@@ -258,11 +259,11 @@ public class Pix {
 
     /**
      * Sets the {@link android.graphics.Color} at the specified location.
-     * 
-     * @param x The x coordinate (0...width-1) of the pixel to set.
-     * @param y The y coordinate (0...height-1) of the pixel to set.
+     *
+     * @param x     The x coordinate (0...width-1) of the pixel to set.
+     * @param y     The y coordinate (0...height-1) of the pixel to set.
      * @param color The argb {@link android.graphics.Color} to set at the
-     *            specified coordinate.
+     *              specified coordinate.
      * @throws IllegalArgumentException If x, y exceeds the image bounds.
      */
     public void setPixel(int x, int y, int color) {
@@ -280,18 +281,32 @@ public class Pix {
     // ***************
 
     private static native int nativeGetRefCount(long nativePix);
+
     private static native long nativeCreatePix(int w, int h, int d);
+
     private static native long nativeCreateFromData(byte[] data, int w, int h, int d);
+
     private static native boolean nativeGetData(long nativePix, byte[] data);
+
     private static native int nativeGetDataSize(long nativePix);
+
     private static native long nativeClone(long nativePix);
+
     private static native long nativeCopy(long nativePix);
+
     private static native boolean nativeInvert(long nativePix);
+
     private static native void nativeDestroy(long nativePix);
+
     private static native boolean nativeGetDimensions(long nativePix, int[] dimensions);
+
     private static native int nativeGetWidth(long nativePix);
+
     private static native int nativeGetHeight(long nativePix);
+
     private static native int nativeGetDepth(long nativePix);
+
     private static native int nativeGetPixel(long nativePix, int x, int y);
+
     private static native void nativeSetPixel(long nativePix, int x, int y, int color);
 }
