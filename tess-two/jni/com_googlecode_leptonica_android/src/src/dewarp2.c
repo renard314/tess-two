@@ -299,17 +299,25 @@ FPIX       *fpix;
     pixdb = (rotflag) ? pixRotateOrth(dew->pixs, 1) : pixClone(dew->pixs);
     for (i = 0; i < nlines; i++) {  /* for each line */
         pta = ptaaGetPta(ptaa, i, L_CLONE);
+        l_int32 left, right;
+        l_int32 count = ptaGetCount(pta);
+        ptaGetIPt(pta,0,&left,NULL);
+        ptaGetIPt(pta,count-1,&right,NULL);
+        l_float32   cc0, cc1, cc2;
         //ptaGetCubicLSF(pta,&c3,&c2,&c1,&c0,NULL);
-        //ptaGetQuadraticLSF(pta, &c2, &c1, &c0, NULL);
+        ptaGetQuadraticLSF(pta, &cc2, &cc1, &cc0, NULL);
         ptaGetQuarticLSF(pta, &c4, &c3, &c2, &c1, &c0, NULL);
         numaAddNumber(nacurve0, c4);
         ptad = ptaCreate(nx);
 
         for (j = 0; j < nx; j++) {  /* uniformly sampled in x */
              x = j * sampling;
-             //applyQuadraticFit(c2, c1, c0, x, &y);
+             if(x>=left && x<=right){
+                 applyQuarticFit(c4,c3,c2,c1,c0,x,&y);
+             } else {
+                 applyQuadraticFit(cc2, cc1, cc0, x, &y);
+             }
              //applyCubicFit(c3, c2, c1, c0, x, &y);
-             applyQuarticFit(c4,c3,c2,c1,c0,x,&y);
              ptaAddPt(ptad, x, y);
         }
         ptaaAddPta(ptaa0, ptad, L_INSERT);
