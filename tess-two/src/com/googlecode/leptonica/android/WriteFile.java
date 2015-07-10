@@ -25,7 +25,7 @@ import java.io.File;
  */
 public class WriteFile {
     static {
-		System.loadLibrary("pngo");
+        System.loadLibrary("pngo");
         System.loadLibrary("lept");
     }
 
@@ -88,8 +88,8 @@ public class WriteFile {
      * <p>
      * Output file names will take the format <path>/<prefix><index>.<extension>
      *
-     * @param pixas The source Pixa image array.
-     * @param path The output directory.
+     * @param pixas  The source Pixa image array.
+     * @param path   The output directory.
      * @param prefix The prefix to give output files.
      * @param format The format to use for output files.
      * @return <code>true</code> on success
@@ -111,7 +111,7 @@ public class WriteFile {
      * Write a Pix to a byte array using the specified encoding from
      * Constants.IFF_*.
      *
-     * @param pixs The source image.
+     * @param pixs   The source image.
      * @param format A format from Constants.IFF_*.
      * @return a byte array containing encoded bytes
      */
@@ -147,10 +147,10 @@ public class WriteFile {
      * <li>The jpeg default quality is 75.
      * </ol>
      *
-     * @param pixs Source image.
-     * @param file The file to write.
-     * @param quality (Only for lossy formats) Quality between 1 - 100, 0 for
-     *            default.
+     * @param pixs        Source image.
+     * @param file        The file to write.
+     * @param quality     (Only for lossy formats) Quality between 1 - 100, 0 for
+     *                    default.
      * @param progressive (Only for JPEG) Whether to encode as progressive.
      * @return <code>true</code> on success
      */
@@ -171,26 +171,25 @@ public class WriteFile {
      *
      * @param pixs The source image.
      * @return a Bitmap containing a copy of the source image, or <code>null
-     *         </code> on failure
+     * </code> on failure
      */
     public static Bitmap writeBitmap(Pix pixs) {
         if (pixs == null)
             throw new IllegalArgumentException("Source pix must be non-null");
 
         final int[] dimensions = pixs.getDimensions();
-        final int width = dimensions[Pix.INDEX_W];
-        final int height = dimensions[Pix.INDEX_H];
-        //final int depth = dimensions[Pix.INDEX_D];
+        if (dimensions != null) {
+            final int width = dimensions[Pix.INDEX_W];
+            final int height = dimensions[Pix.INDEX_H];
 
-        final Bitmap.Config config = Bitmap.Config.ARGB_8888;
-        final Bitmap bitmap = Bitmap.createBitmap(width, height, config);
+            final Bitmap.Config config = Bitmap.Config.ARGB_8888;
+            final Bitmap bitmap = Bitmap.createBitmap(width, height, config);
 
-        if (nativeWriteBitmap(pixs.mNativePix, bitmap)) {
-            return bitmap;
+            if (nativeWriteBitmap(pixs.mNativePix, bitmap)) {
+                return bitmap;
+            }
+            bitmap.recycle();
         }
-
-        bitmap.recycle();
-
         return null;
     }
 
