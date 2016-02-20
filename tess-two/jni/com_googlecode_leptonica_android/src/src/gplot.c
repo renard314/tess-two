@@ -388,7 +388,7 @@ l_int32  ignore;
         snprintf(buf, L_BUF_SIZE, "gnuplot %s", gplot->cmdname);
     else
         snprintf(buf, L_BUF_SIZE,
-                 "gnuplot -persist -geometry +10+10 %s &", gplot->cmdname);
+                 "/usr/local/bin/gnuplot -persist -geometry +10+10 %s &", gplot->cmdname);
 #else
    if (gplot->outformat != GPLOT_X11)
        snprintf(buf, L_BUF_SIZE, "wgnuplot %s", gplot->cmdname);
