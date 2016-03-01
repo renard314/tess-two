@@ -7,6 +7,14 @@ LOCAL_MODULE := libtess
 # tesseract (minus executable)
 
 BLACKLIST_SRC_FILES := \
+  %ccmain/cubeclassifier.cpp \
+  %ccmain/cubeclassifier.h \
+  %ccmain/cube_control.cpp \
+  %ccmain/cube_reco_context.cpp \
+  %ccmain/cube_reco_context.h \
+  %ccmain/tesseract_cube_combiner.cpp \
+  %ccmain/tesseract_cube_combiner.h \
+  %api/pdfrenderer.cpp \
   %api/tesseractmain.cpp \
   %ccstruct/imagedata.cpp \
   %viewer/svpaint.cpp
@@ -17,11 +25,11 @@ TESSERACT_SRC_FILES := \
   $(wildcard $(TESSERACT_PATH)/ccstruct/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/ccutil/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/classify/*.cpp) \
-  $(wildcard $(TESSERACT_PATH)/cube/*.cpp) \
+#  $(wildcard $(TESSERACT_PATH)/cube/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/cutil/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/dict/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/opencl/*.cpp) \
-  $(wildcard $(TESSERACT_PATH)/neural_networks/runtime/*.cpp) \
+#  $(wildcard $(TESSERACT_PATH)/neural_networks/runtime/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/textord/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/viewer/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/wordrec/*.cpp)
@@ -35,18 +43,20 @@ LOCAL_C_INCLUDES := \
   $(TESSERACT_PATH)/ccstruct \
   $(TESSERACT_PATH)/ccutil \
   $(TESSERACT_PATH)/classify \
-  $(TESSERACT_PATH)/cube \
   $(TESSERACT_PATH)/cutil \
   $(TESSERACT_PATH)/dict \
-  $(TESSERACT_PATH)/opencl \
-  $(TESSERACT_PATH)/neural_networks/runtime \
+  $(TESSERACT_PATH)/image \
   $(TESSERACT_PATH)/textord \
-  $(TESSERACT_PATH)/viewer \
   $(TESSERACT_PATH)/wordrec \
+  $(TESSERACT_PATH)/opencl \
+  $(TESSERACT_PATH)/viewer \
   $(LEPTONICA_PATH)/src
+
 
 LOCAL_CFLAGS := \
   -DHAVE_LIBLEPT \
+  -DANDROID_BUILD \
+  -DNO_CUBE_BUILD \
   -DGRAPHICS_DISABLED \
   --std=c++11 \
   -DUSE_STD_NAMESPACE \

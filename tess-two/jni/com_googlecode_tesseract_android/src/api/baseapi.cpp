@@ -1425,9 +1425,9 @@ static void AddBoxTohOCR(const ResultIterator *it,
  * GetHOCRText
  * STL removed from original patch submission and refactored by rays.
  */
-char* TessBaseAPI::GetHOCRText(int page_number) {
+char* TessBaseAPI::GetHOCRText(int page_number, struct ETEXT_DESC* monitor) {
   if (tesseract_ == NULL ||
-      (page_res_ == NULL && Recognize(NULL) < 0))
+      (page_res_ == NULL && Recognize(monitor) < 0))
     return NULL;
 
   int lcnt = 1, bcnt = 1, pcnt = 1, wcnt = 1;
