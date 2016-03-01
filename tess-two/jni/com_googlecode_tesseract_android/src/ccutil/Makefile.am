@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 SUBDIRS =
 AM_CXXFLAGS =
 
@@ -18,7 +19,7 @@ include_HEADERS = \
 noinst_HEADERS = \
     ambigs.h bits16.h bitvector.h ccutil.h clst.h doubleptr.h elst2.h \
     elst.h genericheap.h globaloc.h hashfn.h indexmapbidi.h kdpair.h lsterr.h \
-    nwmain.h object_cache.h qrsequence.h secname.h sorthelper.h stderr.h \
+    nwmain.h object_cache.h qrsequence.h sorthelper.h stderr.h \
     scanutils.h tessdatamanager.h tprintf.h unicity_table.h unicodes.h \
     universalambigs.h
 
@@ -40,9 +41,8 @@ libtesseract_ccutil_la_SOURCES = \
     unichar.cpp unicharmap.cpp unicharset.cpp unicodes.cpp \
     params.cpp universalambigs.cpp
 
-
-if MINGW
-AM_CPPFLAGS += -I$(top_srcdir)/vs2008/port -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
+if T_WIN
+AM_CPPFLAGS += -I$(top_srcdir)/vs2010/port -DWINDLLNAME=\"lib@GENERIC_LIBRARY_NAME@\"
 noinst_HEADERS += ../vs2010/port/strtok_r.h
 libtesseract_ccutil_la_SOURCES += ../vs2010/port/strtok_r.cpp
 endif

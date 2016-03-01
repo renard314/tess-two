@@ -84,7 +84,7 @@ void Tesseract::recog_training_segmented(const STRING &fname,
   const char *lastdot = strrchr(box_fname.string(), '.');
   if (lastdot != NULL) box_fname[lastdot - box_fname.string()] = '\0';
   box_fname += ".box";
-  // read_next_box() will close box_file
+  // ReadNextBox() will close box_file
   FILE *box_file = open_file(box_fname.string(), "r");
 
   PAGE_RES_IT page_res_it;
@@ -132,7 +132,6 @@ void Tesseract::recog_training_segmented(const STRING &fname,
     }
     page_res_it.forward();
   } while (keep_going);
-  fclose(box_file);
 
   // Set up scripts on all of the words that did not get sent to
   // ambigs_classify_and_output.  They all should have, but if all the
@@ -207,8 +206,7 @@ void Tesseract::ambigs_classify_and_output(const char *label,
   fflush(stdout);
   WordData word_data(*pr_it);
   SetupWordPassN(1, &word_data);
-  classify_word_and_language(&Tesseract::classify_word_pass1,
-                             pr_it, &word_data);
+  classify_word_and_language(1, pr_it, &word_data);
   WERD_RES* werd_res = word_data.word;
   WERD_CHOICE *best_choice = werd_res->best_choice;
   ASSERT_HOST(best_choice != NULL);

@@ -1,8 +1,10 @@
 /**********************************************************************
  * File:        tessedit.cpp  (Formerly tessedit.c)
- * Description: Main program for merge of tess and editor.
- * Author:					Ray Smith
- * Created:					Tue Jan 07 15:21:46 GMT 1992
+ * Description: (Previously) Main program for merge of tess and editor.
+ *              Now just code to load the language model and various
+ *              engine-specific data files.
+ * Author:      Ray Smith
+ * Created:     Tue Jan 07 15:21:46 GMT 1992
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
  ** Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +18,11 @@
  ** limitations under the License.
  *
  **********************************************************************/
+
+// Include automatically generated configuration file if running autoconf.
+#ifdef HAVE_CONFIG_H
+#include "config_auto.h"
+#endif
 
 #include          "stderr.h"
 #include          "basedir.h"
@@ -194,7 +201,11 @@ bool Tesseract::init_tesseract_lang_data(
     if (tessdata_manager_debug_level) tprintf("Loaded ambigs\n");
   }
 
-  // Load Cube objects if necessary.
+  // The various OcrEngineMode settings (see publictypes.h) determine which
+  // engine-specific data files need to be loaded. Currently everything needs
+  // the base tesseract data, which supplies other useful information, but
+  // alternative engines, such as cube and LSTM are optional.
+#ifndef NO_CUBE_BUILD
   if (tessedit_ocr_engine_mode == OEM_CUBE_ONLY) {
     ASSERT_HOST(init_cube_objects(false, &tessdata_manager));
     if (tessdata_manager_debug_level)
@@ -204,7 +215,7 @@ bool Tesseract::init_tesseract_lang_data(
     if (tessdata_manager_debug_level)
       tprintf("Loaded Cube with combiner\n");
   }
-
+#endif
   // Init ParamsModel.
   // Load pass1 and pass2 weights (for now these two sets are the same, but in
   // the future separate sets of weights can be generated).
@@ -475,5 +486,4 @@ enum CMD_EVENTS
   RECOG_PSEUDO,
   ACTION_2_CMD_EVENT
 };
-
 }  // namespace tesseract

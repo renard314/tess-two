@@ -481,6 +481,11 @@ class ColPartition : public ELIST2_LINK {
   // Any blobs that are not owned by this partition get to keep their owner
   // without an assert failure.
   void DisownBoxesNoAssert();
+  // NULLs the owner of the blobs in this partition that are owned by this
+  // partition and not leader blobs, removing them from the boxes_ list, thus
+  // turning this partition back to a leader partition if it contains a leader,
+  // or otherwise leaving it empty. Returns true if any boxes remain.
+  bool ReleaseNonLeaderBoxes();
 
   // Delete the boxes that this partition owns.
   void DeleteBoxes();
@@ -690,7 +695,7 @@ class ColPartition : public ELIST2_LINK {
   // one partner. This makes block creation simpler.
   // If get_desperate is true, goes to more desperate merge methods
   // to merge flowing text before breaking partnerships.
-  void RefinePartners(PolyBlockType type, bool get_desparate,
+  void RefinePartners(PolyBlockType type, bool get_desperate,
                       ColPartitionGrid* grid);
 
   // Returns true if this column partition is in the same column as
@@ -708,7 +713,7 @@ class ColPartition : public ELIST2_LINK {
   }
 
  private:
-  // enum to refer to the entries in a neigbourhood of lines.
+  // enum to refer to the entries in a neighbourhood of lines.
   // Used by SmoothSpacings to test for blips with OKSpacingBlip.
   enum SpacingNeighbourhood {
     PN_ABOVE2,

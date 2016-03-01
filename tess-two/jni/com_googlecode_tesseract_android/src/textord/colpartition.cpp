@@ -41,9 +41,6 @@ CLISTIZE(ColPartition)
 
 //////////////// ColPartition Implementation ////////////////
 
-// If multiple partners survive the partner depth test beyond this level,
-// then arbitrarily pick one.
-const int kMaxPartnerDepth = 4;
 // Maximum change in spacing (in inches) to ignore.
 const double kMaxSpacingDrift = 1.0 / 72;  // 1/72 is one point.
 // Maximum fraction of line height used as an additional allowance
@@ -60,8 +57,6 @@ const double kMaxLeaderGapFractionOfMax = 0.25;
 const double kMaxLeaderGapFractionOfMin = 0.5;
 // Minimum number of blobs to be considered a leader.
 const int kMinLeaderCount = 5;
-// Cost of a cut through a leader.
-const int kLeaderCutCost = 8;
 // Minimum score for a STRONG_CHAIN textline.
 const int kMinStrongTextValue = 6;
 // Minimum score for a CHAIN textline.
@@ -295,6 +290,25 @@ void ColPartition::DisownBoxesNoAssert() {
     if (bblob->owner() == this)
       bblob->set_owner(NULL);
   }
+}
+
+// NULLs the owner of the blobs in this partition that are owned by this
+// partition and not leader blobs, removing them from the boxes_ list, thus
+// turning this partition back to a leader partition if it contains a leader,
+// or otherwise leaving it empty. Returns true if any boxes remain.
+bool ColPartition::ReleaseNonLeaderBoxes() {
+  BLOBNBOX_C_IT bb_it(&boxes_);
+  for (bb_it.mark_cycle_pt(); !bb_it.cycled_list(); bb_it.forward()) {
+    BLOBNBOX* bblob = bb_it.data();
+    if (bblob->flow() != BTFT_LEADER) {
+      if (bblob->owner() == this) bblob->set_owner(NULL);
+      bb_it.extract();
+    }
+  }
+  if (bb_it.empty()) return false;
+  flow_ = BTFT_LEADER;
+  ComputeLimits();
+  return true;
 }
 
 // Delete the boxes that this partition owns.
@@ -831,6 +845,10 @@ ColPartition* ColPartition::SplitAt(int split_x) {
         bbox->set_owner(split_part);
     }
   }
+  if (it.empty()) {
+    // Possible if split-x passes through the first blob.
+    it.add_list_after(&split_part->boxes_);
+  }
   ASSERT_HOST(!it.empty());
   if (split_part->IsEmpty()) {
     // Split part ended up with nothing. Possible if split_x passes
@@ -958,7 +976,7 @@ int ColPartition::CountOverlappingBoxes(const TBOX& box) {
   return overlap_count;
 }
 
-// Computes and sets the type_ and first_colum_, last_column_ and column_set_.
+// Computes and sets the type_ and first_column_, last_column_ and column_set_.
 // resolution refers to the ppi resolution of the image.
 void ColPartition::SetPartitionType(int resolution, ColPartitionSet* columns) {
   int first_spanned_col = -1;
@@ -1130,6 +1148,7 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
     if (best_end != NULL && best_end->total_cost() < blob_count) {
       // Good enough. Call it a leader.
       result = true;
+      bool modified_blob_list = false;
       for (it.mark_cycle_pt(); !it.cycled_list(); it.forward()) {
         BLOBNBOX* blob = it.data();
         TBOX box = blob->bounding_box();
@@ -1139,6 +1158,7 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
                      blob->bounding_box().right();
           if (blob->bounding_box().width() + gap > max_step) {
             it.extract();
+            modified_blob_list = true;
             continue;
           }
         }
@@ -1147,12 +1167,14 @@ bool ColPartition::MarkAsLeaderIfMonospaced() {
                      it.data_relative(-1)->bounding_box().right();
           if (blob->bounding_box().width() + gap > max_step) {
             it.extract();
+            modified_blob_list = true;
             break;
           }
         }
         blob->set_region_type(BRT_TEXT);
         blob->set_flow(BTFT_LEADER);
       }
+      if (modified_blob_list) ComputeLimits();
       blob_type_ = BRT_TEXT;
       flow_ = BTFT_LEADER;
     } else if (textord_debug_tabfind) {
@@ -2167,7 +2189,7 @@ bool ColPartition::IsInSameColumnAs(const ColPartition& part) const {
 void ColPartition::SmoothSpacings(int resolution, int page_height,
                                   ColPartition_LIST* parts) {
   // The task would be trivial if we didn't have to allow for blips -
-  // occasional offsets in spacing caused by anomolous text, such as all
+  // occasional offsets in spacing caused by anomalous text, such as all
   // caps, groups of descenders, joined words, Arabic etc.
   // The neighbourhood stores a consecutive group of partitions so that
   // blips can be detected correctly, yet conservatively enough to not

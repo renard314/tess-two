@@ -144,7 +144,7 @@ class TessdataManager {
 
   /**
    * Opens the given data file and reads the offset table.
-   * Returns true on success.
+   * @return true on success.
    */
   bool Init(const char *data_file_name, int debug_level);
 
@@ -199,8 +199,10 @@ class TessdataManager {
     return swap_;
   }
 
-  /** Writes the number of entries and the given offset table to output_file. */
-  static void WriteMetadata(inT64 *offset_table,
+  /** Writes the number of entries and the given offset table to output_file.
+   * Returns false on error.
+   */
+  static bool WriteMetadata(inT64 *offset_table,
                             const char *language_data_path_prefix,
                             FILE *output_file);
 
@@ -280,7 +282,7 @@ class TessdataManager {
    * same or smaller than TESSDATA_NUM_ENTRIES, but can never be larger,
    * since then it would be impossible to interpret the type of tessdata at
    * indices same and higher than TESSDATA_NUM_ENTRIES.
-   * This parameter is used to allow for backward compatiblity
+   * This parameter is used to allow for backward compatibility
    * when new tessdata types are introduced.
    */
   inT32 actual_tessdata_num_entries_;

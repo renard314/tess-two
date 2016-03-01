@@ -140,6 +140,14 @@ void StringRenderer::set_resolution(const int resolution) {
   font_.set_resolution(resolution);
 }
 
+void StringRenderer::set_underline_start_prob(const double frac) {
+  underline_start_prob_ = min(max(frac, 0.0), 1.0);
+}
+
+void StringRenderer::set_underline_continuation_prob(const double frac) {
+  underline_continuation_prob_ = min(max(frac, 0.0), 1.0);
+}
+
 StringRenderer::~StringRenderer() {
   ClearBoxes();
   FreePangoCairo();
@@ -330,7 +338,8 @@ void StringRenderer::ClearBoxes() {
   boxaDestroy(&page_boxes_);
 }
 
-void StringRenderer::WriteAllBoxes(const string& filename) const {
+void StringRenderer::WriteAllBoxes(const string& filename) {
+  BoxChar::PrepareToWrite(&boxchars_);
   BoxChar::WriteTesseractBoxFile(filename, page_height_, boxchars_);
 }
 
@@ -818,6 +827,7 @@ int StringRenderer::RenderToImage(const char* text, int text_length,
 int StringRenderer::RenderAllFontsToImage(double min_coverage,
                                           const char* text, int text_length,
                                           string* font_used, Pix** image) {
+  *image = NULL;
   // Select a suitable font to render the title with.
   const char kTitleTemplate[] = "%s : %d hits = %.2f%%, raw = %d = %.2f%%";
   string title_font;
@@ -881,10 +891,9 @@ int StringRenderer::RenderAllFontsToImage(double min_coverage,
               all_fonts[i].c_str(), ok_chars, 100.0 * ok_chars / total_chars_);
     }
   }
-  *image = NULL;
   font_index_ = 0;
   char_map_.clear();
-  return last_offset_;
+  return last_offset_ == 0 ? -1 : last_offset_;
 }
 
 }  // namespace tesseract

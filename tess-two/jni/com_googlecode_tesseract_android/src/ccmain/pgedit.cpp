@@ -314,6 +314,7 @@ void Tesseract::do_re_display(
     image_win->Image(pix_binary_, 0, 0);
   }
 
+  image_win->Brush(ScrollView::NONE);
   PAGE_RES_IT pr_it(current_page_res);
   for (WERD_RES* word = pr_it.word(); word != NULL; word = pr_it.forward()) {
     (this->*word_painter)(&pr_it);
@@ -655,7 +656,8 @@ void show_point(PAGE_RES* page_res, float x, float y) {
   FCOORD pt(x, y);
   PAGE_RES_IT pr_it(page_res);
 
-  char msg[160];
+  const int kBufsize = 512;
+  char msg[kBufsize];
   char *msg_ptr = msg;
 
   msg_ptr += sprintf(msg_ptr, "Pt:(%0.3f, %0.3f) ", x, y);

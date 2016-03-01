@@ -50,7 +50,7 @@ class StringRenderer {
   StringRenderer(const string& font_desc, int page_width, int page_height);
   ~StringRenderer();
 
-  // Renders the text with the chosen font and returns the byte offset upto
+  // Renders the text with the chosen font and returns the byte offset up to
   // which the text could be rendered so as to fit the specified page
   // dimensions.
   int RenderToImage(const char* text, int text_length, Pix** pix);
@@ -83,14 +83,10 @@ class StringRenderer {
   // Sets the probability (value in [0, 1]) of starting to render a word with an
   // underline. This implementation consider words to be space-delimited
   // sequences of characters.
-  void set_underline_start_prob(const double frac) {
-    underline_start_prob_ = std::min(std::max(frac, 0.0), 1.0);
-  }
+  void set_underline_start_prob(const double frac);
   // Set the probability (value in [0, 1]) of continuing a started underline to
   // the next word.
-  void set_underline_continuation_prob(const double frac) {
-    underline_continuation_prob_ = std::min(std::max(frac, 0.0), 1.0);
-  }
+  void set_underline_continuation_prob(const double frac);
   void set_underline_style(const PangoUnderline style) {
     underline_style_ = style;
   }
@@ -148,7 +144,7 @@ class StringRenderer {
   void RotatePageBoxes(float rotation);
   // Delete all boxes.
   void ClearBoxes();
-  void WriteAllBoxes(const string& filename) const;
+  void WriteAllBoxes(const string& filename);
   // Removes space-delimited words from the string that are not renderable by
   // the current font and returns the count of such words.
   int StripUnrenderableWords(string* utf8_text) const;

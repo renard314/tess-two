@@ -523,16 +523,12 @@ const char* kAlignmentNames[] = {
 
 // Print basic information about this tab vector.
 void TabVector::Print(const char* prefix) {
-  if (this == NULL) {
-    tprintf("%s <null>\n", prefix);
-  } else {
-    tprintf("%s %s (%d,%d)->(%d,%d) w=%d s=%d, sort key=%d, boxes=%d,"
-            " partners=%d\n",
-            prefix, kAlignmentNames[alignment_],
-            startpt_.x(), startpt_.y(), endpt_.x(), endpt_.y(),
-            mean_width_, percent_score_, sort_key_,
-            boxes_.length(), partners_.length());
-  }
+  tprintf("%s %s (%d,%d)->(%d,%d) w=%d s=%d, sort key=%d, boxes=%d,"
+          " partners=%d\n",
+          prefix, kAlignmentNames[alignment_],
+          startpt_.x(), startpt_.y(), endpt_.x(), endpt_.y(),
+          mean_width_, percent_score_, sort_key_,
+          boxes_.length(), partners_.length());
 }
 
 // Print basic information about this tab vector and every box in it.
@@ -926,6 +922,7 @@ TabVector* TabVector::VerticalTextlinePartner() {
     total_widths += box.width();
     prev_bbox = bbox;
   }
+  if (num_unmatched + num_matched == 0) return NULL;
   double avg_width = total_widths * 1.0 / (num_unmatched + num_matched);
   double max_gap = textord_tabvector_vertical_gap_fraction * avg_width;
   int min_box_match = static_cast<int>((num_matched + num_unmatched) *

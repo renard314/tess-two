@@ -1,3 +1,4 @@
+AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS += \
     -DUSE_STD_NAMESPACE -DPANGO_ENABLE_ENGINE\
     -I$(top_srcdir)/ccmain -I$(top_srcdir)/api \
@@ -7,7 +8,7 @@ AM_CPPFLAGS += \
     -I$(top_srcdir)/classify -I$(top_srcdir)/display \
     -I$(top_srcdir)/wordrec -I$(top_srcdir)/cutil
 
-EXTRA_DIST = tesstrain.sh
+EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
 if MINGW
 # try static build
@@ -27,7 +28,7 @@ noinst_HEADERS = \
     boxchar.h commandlineflags.h commontraining.h degradeimage.h \
       fileio.h icuerrorcode.h ligature_table.h normstrngs.h \
       mergenf.h pango_font_info.h stringrenderer.h \
-      tessopt.h tlog.h util.h
+      tessopt.h tlog.h unicharset_training_utils.h util.h
 
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
@@ -38,7 +39,7 @@ libtesseract_training_la_LIBADD = \
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
       fileio.cpp ligature_table.cpp normstrngs.cpp pango_font_info.cpp \
-      stringrenderer.cpp tlog.cpp
+      stringrenderer.cpp tlog.cpp unicharset_training_utils.cpp
 
 libtesseract_tessopt_la_SOURCES = \
     tessopt.cpp
@@ -242,7 +243,7 @@ text2image_LDADD += \
     ../api/libtesseract.la
 endif
 text2image_LDADD += $(libicu) -lpango-1.0 -lpangocairo-1.0 \
-		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0
+		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp
 #unicharset_extractor_LDFLAGS = -static
@@ -279,7 +280,7 @@ wordlist2dawg_LDADD += \
     ../api/libtesseract.la
 endif
 
-if MINGW
+if T_WIN
 ambiguous_words_LDADD += -lws2_32
 classifier_tester_LDADD += -lws2_32
 cntraining_LDADD += -lws2_32
@@ -297,16 +298,14 @@ noinst_HEADERS += ../vs2010/port/strcasestr.h
 libtesseract_training_la_SOURCES += ../vs2010/port/strcasestr.cpp
 endif
 
-if USE_OPENCL
-ambiguous_words_LDADD += $(OPENCL_LIB)
-classifier_tester_LDADD += $(OPENCL_LIB)
-cntraining_LDADD += $(OPENCL_LIB)
-combine_tessdata_LDADD += $(OPENCL_LIB)
-dawg2wordlist_LDADD += $(OPENCL_LIB)
-mftraining_LDADD += $(OPENCL_LIB)
-set_unicharset_properties_LDADD += $(OPENCL_LIB)
-shapeclustering_LDADD += $(OPENCL_LIB)
-text2image_LDADD += $(OPENCL_LIB)
-unicharset_extractor_LDADD += $(OPENCL_LIB)
-wordlist2dawg_LDADD += $(OPENCL_LIB)
-endif
+ambiguous_words_LDFLAGS = $(OPENCL_LDFLAGS)
+classifier_tester_LDFLAGS = $(OPENCL_LDFLAGS)
+cntraining_LDFLAGS = $(OPENCL_LDFLAGS)
+combine_tessdata_LDFLAGS = $(OPENCL_LDFLAGS)
+dawg2wordlist_LDFLAGS = $(OPENCL_LDFLAGS)
+mftraining_LDFLAGS = $(OPENCL_LDFLAGS)
+set_unicharset_properties_LDFLAGS = $(OPENCL_LDFLAGS)
+shapeclustering_LDFLAGS = $(OPENCL_LDFLAGS)
+text2image_LDFLAGS = $(OPENCL_LDFLAGS)
+unicharset_extractor_LDFLAGS = $(OPENCL_LDFLAGS)
+wordlist2dawg_LDFLAGS = $(OPENCL_LDFLAGS)
