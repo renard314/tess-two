@@ -25,6 +25,8 @@ TESSERACT_SRC_FILES := \
   $(wildcard $(TESSERACT_PATH)/ccutil/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/classify/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/cutil/*.cpp) \
+  $(wildcard $(TESSERACT_PATH)/cube/*.cpp) \
+  $(wildcard $(TESSERACT_PATH)/neural_networks/runtime/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/dict/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/image/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/opencl/*.cpp) \
@@ -43,6 +45,8 @@ LOCAL_C_INCLUDES := \
   $(TESSERACT_PATH)/classify \
   $(TESSERACT_PATH)/cutil \
   $(TESSERACT_PATH)/dict \
+  $(TESSERACT_PATH)/cube \
+  $(TESSERACT_PATH)/neural_networks/runtime \
   $(TESSERACT_PATH)/image \
   $(TESSERACT_PATH)/textord \
   $(TESSERACT_PATH)/wordrec \
@@ -54,7 +58,6 @@ LOCAL_C_INCLUDES := \
 LOCAL_CFLAGS := \
   -DHAVE_LIBLEPT \
   -DANDROID_BUILD \
-  -DNO_CUBE_BUILD \
   -DGRAPHICS_DISABLED \
   --std=c++11 \
   -DUSE_STD_NAMESPACE \
