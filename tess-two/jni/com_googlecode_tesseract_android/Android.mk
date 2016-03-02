@@ -7,13 +7,6 @@ LOCAL_MODULE := libtess
 # tesseract (minus executable)
 
 BLACKLIST_SRC_FILES := \
-  %ccmain/cubeclassifier.cpp \
-  %ccmain/cubeclassifier.h \
-  %ccmain/cube_control.cpp \
-  %ccmain/cube_reco_context.cpp \
-  %ccmain/cube_reco_context.h \
-  %ccmain/tesseract_cube_combiner.cpp \
-  %ccmain/tesseract_cube_combiner.h \
   %api/tesseractmain.cpp \
   %ccstruct/imagedata.cpp \
   %viewer/svpaint.cpp
