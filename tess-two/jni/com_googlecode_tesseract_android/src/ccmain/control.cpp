@@ -202,6 +202,9 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
     }
   }
 }
+    
+
+
 
 // Runs word recognition on all the words.
 bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
@@ -218,10 +221,20 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
     if (w > 0) word->prev_word = &(*words)[w - 1];
     if (monitor != NULL) {
       monitor->ocr_alive = TRUE;
-      if (pass_n == 1)
-        monitor->progress = 30 + 50 * w / words->size();
-      else
-        monitor->progress = 80 + 10 * w / words->size();
+      if (pass_n == 1) {
+        monitor->progress = 80 * w / words->size();
+        if (monitor->progress_callback!=NULL){
+        TBOX box = word->word->word->bounding_box();
+        (*monitor->progress_callback)(monitor->progress_this,monitor->progress,box.left(), box.right(), box.top(), box.bottom());
+      }
+    }else {
+      monitor->progress = 80 + 20 * w / words->size();
+      if (monitor->progress_callback!=NULL){
+        TBOX box = word->word->word->bounding_box();
+        (*monitor->progress_callback)(monitor->progress_this, monitor->progress,box.left(), box.right(), box.top(), box.bottom());
+      }
+
+    }
       if (monitor->deadline_exceeded() ||
           (monitor->cancel != NULL && (*monitor->cancel)(monitor->cancel_this,
                                                          words->size()))) {
