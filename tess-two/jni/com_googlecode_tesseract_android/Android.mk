@@ -14,7 +14,6 @@ BLACKLIST_SRC_FILES := \
   %ccmain/cube_reco_context.h \
   %ccmain/tesseract_cube_combiner.cpp \
   %ccmain/tesseract_cube_combiner.h \
-  %api/pdfrenderer.cpp \
   %api/tesseractmain.cpp \
   %ccstruct/imagedata.cpp \
   %viewer/svpaint.cpp
@@ -25,11 +24,10 @@ TESSERACT_SRC_FILES := \
   $(wildcard $(TESSERACT_PATH)/ccstruct/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/ccutil/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/classify/*.cpp) \
-#  $(wildcard $(TESSERACT_PATH)/cube/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/cutil/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/dict/*.cpp) \
+  $(wildcard $(TESSERACT_PATH)/image/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/opencl/*.cpp) \
-#  $(wildcard $(TESSERACT_PATH)/neural_networks/runtime/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/textord/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/viewer/*.cpp) \
   $(wildcard $(TESSERACT_PATH)/wordrec/*.cpp)
