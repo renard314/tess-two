@@ -435,9 +435,14 @@ jstring Java_com_googlecode_tesseract_android_TessBaseAPI_nativeGetHtmlText(JNIE
                                                                             jobject thiz) {
 
   native_data_t *nat = get_native_data(env, thiz);
-
+  tesseract::OcrEngineMode mode = nat->api.oem();
+  int redThreshhold = 70;
+  if(mode==tesseract::OcrEngineMode::OEM_CUBE_ONLY || mode==tesseract::OcrEngineMode::OEM_TESSERACT_CUBE_COMBINED){
+    redThreshhold = 35;
+  }
+    
   tesseract::ResultIterator* res_it = nat->api.GetIterator();
-  std::string utf8text = GetHTMLText(res_it, 70);
+  std::string utf8text = GetHTMLText(res_it, redThreshhold);
   jstring result = env->NewStringUTF(utf8text.c_str());
   return result;
 }
