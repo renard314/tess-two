@@ -16,12 +16,14 @@
 
 package com.googlecode.leptonica.android;
 
+import com.squareup.picasso.LruCache;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.io.IOException;
@@ -166,7 +168,7 @@ public class ReadFile {
 
     private static Bitmap loadWithPicasso(Context context, File file) {
         try {
-            return Picasso.with(context).load(file).get();
+            return Picasso.with(context).load(file).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).get();
         } catch (IOException ignored) {
         }
         return null;
