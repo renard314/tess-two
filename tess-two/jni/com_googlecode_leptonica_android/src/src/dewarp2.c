@@ -307,7 +307,7 @@ FPIX       *fpix;
         //ptaGetCubicLSF(pta,&c3,&c2,&c1,&c0,NULL);
         ptaGetQuadraticLSF(pta, &cc2, &cc1, &cc0, NULL);
         ptaGetQuarticLSF(pta, &c4, &c3, &c2, &c1, &c0, NULL);
-        numaAddNumber(nacurve0, c4);
+        numaAddNumber(nacurve0, cc2);
         ptad = ptaCreate(nx);
 
         for (j = 0; j < nx; j++) {  /* uniformly sampled in x */
@@ -765,8 +765,11 @@ PTAA     *ptaa;
     snprintf(buf, sizeof(buf), "o1.3 + c%d.1 + o%d.1 + c%d.1",
              csize1, csize1, csize2);
     pix1 = pixMorphSequence(pixs, buf, 0);
-    pixWrite("/tmp/dewmod/0011.tif", pix1, IFF_TIFF_G4);
-    pixDisplayWithTitle(pix1, 0, 800, "pix1", debugflag);
+
+    if(debugflag){
+        pixWrite("/tmp/dewmod/0011.tif", pix1, IFF_TIFF_G4);
+        pixDisplayWithTitle(pix1, 0, 800, "pix1", debugflag);
+    }
 
         /* Get the 8-connected components ... */
     boxa = pixConnComp(pix1, &pixa1, 8);
