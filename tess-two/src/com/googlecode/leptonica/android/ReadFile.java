@@ -16,13 +16,13 @@
 
 package com.googlecode.leptonica.android;
 
-import com.squareup.picasso.LruCache;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
@@ -143,47 +143,35 @@ public class ReadFile {
             return null;
         }
 
-        final long nativePix = nativeReadFile(file.getAbsolutePath());
-
-        if (nativePix != 0) {
-            return new Pix(nativePix);
-        }
-
-        Bitmap bmp = null;
-        if (context != null) {
-            bmp = loadWithPicasso(context, file);
-        }
-        if (bmp == null) {
-            bmp = loadWithBitmapFactory(file);
-        }
-
-        if (bmp != null) {
-            final Pix pix = readBitmap(bmp);
-            bmp.recycle();
-            return pix;
-        }
-
-        return null;
+        return loadWithPicasso(context, file);
     }
 
-    private static Bitmap loadWithPicasso(Context context, File file) {
+    public static Pix loadWithPicasso(Context context, File file) {
         try {
-            return Picasso.with(context).load(file).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).get();
+            final Bitmap bmp = Picasso.with(context).load(file).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).get();
+            if (bmp != null) {
+                final Pix pix = readBitmap(bmp);
+                bmp.recycle();
+                return pix;
+            }
         } catch (IOException ignored) {
         }
         return null;
     }
 
-    private static Bitmap loadWithBitmapFactory(File file) {
-        final BitmapFactory.Options opts = new BitmapFactory.Options();
-        opts.inPreferredConfig = Bitmap.Config.ARGB_8888;
+    public static Pix loadWithPicasso(Context context, Uri uri) {
         try {
-            return BitmapFactory.decodeFile(file.getAbsolutePath(), opts);
-        } catch (OutOfMemoryError ignored) {
-
+            final Bitmap bmp = Picasso.with(context).load(uri).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).get();
+            if (bmp != null) {
+                final Pix pix = readBitmap(bmp);
+                bmp.recycle();
+                return pix;
+            }
+        } catch (IOException ignored) {
         }
         return null;
     }
+
 
     /**
      * Creates a Pix object from Bitmap data. Currently supports only
