@@ -119,9 +119,6 @@ public class Scale {
 
         long nativePix = nativeScale(pixs.mNativePix, scaleX, scaleY);
 
-        if (nativePix == 0)
-            throw new RuntimeException("Failed to natively scale pix");
-
         return new Pix(nativePix);
     }
     
