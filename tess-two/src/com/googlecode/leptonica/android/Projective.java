@@ -41,7 +41,7 @@ public class Projective {
         if (pixs == null) {
             throw new IllegalArgumentException("Source pix must be non-null");
         }
-        final long result = nativeProjectivePtaColor(pixs.getNativePix(), dest, src);
+        final long result = nativeProjectivePtaGray(pixs.getNativePix(), dest, src);
         if(result!=0){
             return new Pix(result);
         } else {
@@ -53,5 +53,5 @@ public class Projective {
     // ***************
     // * NATIVE CODE *
     // ***************
-    private static native long nativeProjectivePtaColor(long pix , float[] dest, float[] src);
+    private static native long nativeProjectivePtaGray(long pix , float[] dest, float[] src);
 }

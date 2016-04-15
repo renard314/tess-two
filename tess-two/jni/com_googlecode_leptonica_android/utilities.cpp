@@ -305,7 +305,7 @@ jlong Java_com_googlecode_leptonica_android_Rotate_nativeRotateOrth(JNIEnv *env,
  * Bilinear *
  **********/
 
-jlong Java_com_googlecode_leptonica_android_Projective_nativeProjectivePtaColor(JNIEnv *env, jclass clazz, jlong nativePix, jfloatArray dest, jfloatArray src) {
+jlong Java_com_googlecode_leptonica_android_Projective_nativeProjectivePtaGray(JNIEnv *env, jclass clazz, jlong nativePix, jfloatArray dest, jfloatArray src) {
 	LOGV("%s",__FUNCTION__);
 
 	jfloat* dest2 = env->GetFloatArrayElements( dest,0);
@@ -328,7 +328,7 @@ jlong Java_com_googlecode_leptonica_android_Projective_nativeProjectivePtaColor(
 	LOGI("src points: (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f)",src2[0],src2[1],src2[2],src2[3],src2[4],src2[5],src2[6],src2[7]);
 	LOGI("dest points: (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f) - (%.1f,%.1f)",dest2[0],dest2[1],dest2[2],dest2[3],dest2[4],dest2[5],dest2[6],dest2[7]);
 
-	Pix* pixBilinar = pixProjectivePtaColor(pixs,mappedPoints,orgPoints,0xffffff00);
+	Pix* pixBilinar = pixProjectivePtaGray(pixs,mappedPoints,orgPoints,0xff);
 
 	ptaDestroy(&orgPoints);
 	ptaDestroy(&mappedPoints);
