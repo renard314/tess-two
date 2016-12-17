@@ -20,13 +20,13 @@
 #include "android/bitmap.h"
 #include "common.h"
 #include "baseapi.h"
+#include "errcode.h"
 #include "ocrclass.h"
 #include "allheaders.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
-
-
+#include "crashlytics.h"
 
 static jfieldID field_mNativeData;
 static jmethodID method_onProgressValues;
@@ -42,11 +42,11 @@ struct native_data_t {
     bool cancel_ocr;
     
     JNIEnv *cachedEnv;
-    jobject* cachedObject;
-    
+    jobject cachedObject;
+
     bool isStateValid() {
-        
-        if (cancel_ocr == false && cachedEnv != NULL && cachedObject != NULL) {
+
+        if (cancel_ocr == false && cachedEnv != NULL) {
             return true;
         } else {
             LOGI("state is cancelled");
@@ -58,12 +58,12 @@ struct native_data_t {
     void setTextBoundaries(l_uint32 x, l_uint32 y, l_uint32 w, l_uint32 h){
         boxSetGeometry(currentTextBox,x,y,w,h);
     }
-    
-    
-    void initStateVariables(JNIEnv* env, jobject *object) {
+
+
+    void initStateVariables(JNIEnv *env, jobject object) {
         cancel_ocr = false;
         cachedEnv = env;
-        cachedObject = object;
+        cachedObject = env->NewGlobalRef(object);
         lastProgress = 0;
         
         //boxSetGeometry(currentTextBox,0,0,0,0);
@@ -71,8 +71,10 @@ struct native_data_t {
     
     void resetStateVariables() {
         cancel_ocr = false;
-        cachedEnv = NULL;
-        cachedObject = NULL;
+        if (cachedEnv != NULL) {
+            cachedEnv->DeleteGlobalRef(cachedObject);
+            cachedEnv = NULL;
+        }
         lastProgress = 0;
         boxSetGeometry(currentTextBox,0,0,0,0);
     }
@@ -112,7 +114,9 @@ bool progressJavaCallback(void* progress_this,int progress, int left, int right,
             LOGI("state changed");
             int x, y, w, h;
             boxGetGeometry(nat->currentTextBox, &x, &y, &w, &h);
-            nat->cachedEnv->CallVoidMethod(*(nat->cachedObject), method_onProgressValues, progress, (jint) left, (jint) right, (jint) top, (jint) bottom, (jint) x, (jint) (x + w), (jint) y, (jint) (y + h));
+            nat->cachedEnv->CallVoidMethod(nat->cachedObject, method_onProgressValues, progress,
+                                           (jint) left, (jint) right, (jint) top, (jint) bottom,
+                                           (jint) x, (jint) (x + w), (jint) y, (jint) (y + h));
             nat->lastProgress = progress;
         }
     }
@@ -159,7 +163,15 @@ extern "C" {
         
         env->SetLongField(object, field_mNativeData, (jlong) nat);
     }
-    
+
+    void Java_com_googlecode_tesseract_android_TessBaseAPI_initCrashlytics(JNIEnv *env,
+                                                                           jclass clazz) {
+
+        crashlytics_context_t *context = crashlytics_init();
+        ERRCODE::setCrashLyticsContext(context);
+    }
+
+
     void Java_com_googlecode_tesseract_android_TessBaseAPI_nativeFinalize(JNIEnv* env,
                                                                           jobject object) {
         
@@ -653,7 +665,7 @@ extern "C" {
         
         
         native_data_t *nat = get_native_data(env, thiz);
-        nat->initStateVariables(env, &thiz);
+        nat->initStateVariables(env, thiz);
         
         ETEXT_DESC monitor;
         monitor.progress_callback = progressJavaCallback;

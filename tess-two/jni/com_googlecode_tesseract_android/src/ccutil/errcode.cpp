@@ -31,6 +31,8 @@
 const ERRCODE BADERRACTION = "Illegal error action";
 #define MAX_MSG       1024
 
+crashlytics_context_t* ERRCODE::context = NULL;
+
 void ERRCODE::setCrashLyticsContext(crashlytics_context_t* _context){
     context = _context;
 }

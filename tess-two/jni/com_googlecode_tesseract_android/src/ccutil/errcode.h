@@ -78,11 +78,10 @@ class TESS_API ERRCODE {           // error handler class
     
   ERRCODE(const char *string) {
     message = string;                            // initialize with string
-    context = NULL;
   }
-    void setCrashLyticsContext(crashlytics_context_t*);
+   static void setCrashLyticsContext(crashlytics_context_t*);
   private:
-    crashlytics_context_t* context;
+    static crashlytics_context_t* context;
 };
 
 const ERRCODE ASSERT_FAILED = "Assert failed";
