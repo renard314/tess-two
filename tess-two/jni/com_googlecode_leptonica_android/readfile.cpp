@@ -179,7 +179,7 @@ jlong Java_com_googlecode_leptonica_android_ReadFile_nativeReadBitmap(JNIEnv *en
 
 	AndroidBitmap_unlockPixels(env, bitmap);
 
-	return (jint) pixd;
+	return (jlong) pixd;
 }
 
 #ifdef __cplusplus
