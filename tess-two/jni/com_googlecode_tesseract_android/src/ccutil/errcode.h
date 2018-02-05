@@ -75,13 +75,13 @@ class TESS_API ERRCODE {           // error handler class
     TessErrorLogCode action,   // action to take
     const char *format, ...    // fprintf format
   ) const;
-    
   ERRCODE(const char *string) {
-    message = string;                            // initialize with string
-  }
-   static void setCrashLyticsContext(crashlytics_context_t*);
-  private:
+    message = string;
+  }                            // initialize with string
+    static void setCrashLyticsContext(crashlytics_context_t*);
+private:
     static crashlytics_context_t* context;
+
 };
 
 const ERRCODE ASSERT_FAILED = "Assert failed";
@@ -92,21 +92,11 @@ const ERRCODE ASSERT_FAILED = "Assert failed";
                         __FILE__, __LINE__);                            \
   }
 
-#ifdef _MSC_VER
-#define ASSERT_HOST_MSG(x, msg, ...) if (!(x))                            \
-  {                                                                     \
-    tprintf(msg);                                                       \
-    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
-                        __FILE__, __LINE__);                            \
+#define ASSERT_HOST_MSG(x, ...)                                                \
+  if (!(x)) {                                                                  \
+    tprintf(__VA_ARGS__);                                                      \
+    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d", __FILE__, __LINE__); \
   }
-#else
-#define ASSERT_HOST_MSG(x, msg...) if (!(x))                            \
-  {                                                                     \
-    tprintf(msg);                                                       \
-    ASSERT_FAILED.error(#x, ABORT, "in file %s, line %d",               \
-                        __FILE__, __LINE__);                            \
-  }
-#endif
 
 void signal_exit(int signal_code);
 

@@ -1,8 +1,8 @@
 /******************************************************************
  * File:        control.cpp  (Formerly control.c)
  * Description: Module-independent matcher controller.
- * Author:					Ray Smith
- * Created:					Thu Apr 23 11:09:58 BST 1992
+ * Author:          Ray Smith
+ * Created:         Thu Apr 23 11:09:58 BST 1992
  * ReHacked:    Tue Sep 22 08:42:49 BST 1992 Phil Cheatle
  *
  * (C) Copyright 1992, Hewlett-Packard Ltd.
@@ -51,8 +51,6 @@
 #define MAX_XHEIGHT_DIFF  3
 
 const char* const kBackUpConfigFile = "tempconfigdata.config";
-// Multiple of x-height to make a repeated word have spaces in it.
-const double kRepcharGapThreshold = 0.5;
 // Min believable x-height for any text when refitting as a fraction of
 // original x-height
 const double kMinRefitXHeightFraction = 0.5;
@@ -74,7 +72,6 @@ void Tesseract::recog_pseudo_word(PAGE_RES* page_res,
     delete it;
   }
 }
-
 
 /**
  * Recognize a single word in interactive mode.
@@ -202,9 +199,6 @@ void Tesseract::SetupWordPassN(int pass_n, WordData* word) {
     }
   }
 }
-    
-
-
 
 // Runs word recognition on all the words.
 bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
@@ -224,13 +218,13 @@ bool Tesseract::RecogAllWordsPassN(int pass_n, ETEXT_DESC* monitor,
       if (pass_n == 1) {
         monitor->progress = 80 * w / words->size();
         if (monitor->progress_callback!=NULL){
-        TBOX box = word->word->word->bounding_box();
-        (*monitor->progress_callback)(monitor->progress_this,monitor->progress,box.left(), box.right(), box.top(), box.bottom());
+        TBOX box = pr_it->word()->word->bounding_box();
+        (*monitor->progress_callback)(monitor->progress_this, monitor->progress,box.left(), box.right(), box.top(), box.bottom());
       }
     }else {
       monitor->progress = 80 + 20 * w / words->size();
       if (monitor->progress_callback!=NULL){
-        TBOX box = word->word->word->bounding_box();
+        TBOX box = pr_it->word()->word->bounding_box();
         (*monitor->progress_callback)(monitor->progress_this, monitor->progress,box.left(), box.right(), box.top(), box.bottom());
       }
 
@@ -543,7 +537,7 @@ void Tesseract::bigram_correction_pass(PAGE_RES *page_res) {
         }
       }
     }
-    if (overrides_word1.size() >= 1) {
+    if (!overrides_word1.empty()) {
       // Excellent, we have some bigram matches.
       if (EqualIgnoringCaseAndTerminalPunct(*w_prev->best_choice,
                                             *overrides_word1[best_idx]) &&

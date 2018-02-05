@@ -34,7 +34,6 @@
 #include "callcpp.h"
 #include "dawg.h"
 #include "dict.h"
-#include "freelist.h"
 #include "genericvector.h"
 #include "helpers.h"
 #include "kdpair.h"
@@ -276,7 +275,6 @@ bool Trie::add_word_to_dawg(const WERD_CHOICE &word,
 
 NODE_REF Trie::new_dawg_node() {
   TRIE_NODE_RECORD *node = new TRIE_NODE_RECORD();
-  if (node == NULL) return 0;  // failed to create new node
   nodes_.push_back(node);
   return nodes_.length() - 1;
 }
@@ -548,8 +546,7 @@ SquishedDawg *Trie::trie_to_dawg() {
 
   // Convert nodes_ vector into EDGE_ARRAY translating the next node references
   // in edges using node_ref_map. Empty nodes and backward edges are dropped.
-  EDGE_ARRAY edge_array =
-    (EDGE_ARRAY)memalloc(num_forward_edges * sizeof(EDGE_RECORD));
+  EDGE_ARRAY edge_array = new EDGE_RECORD[num_forward_edges];
   EDGE_ARRAY edge_array_ptr = edge_array;
   for (i = 0; i < nodes_.size(); ++i) {
     TRIE_NODE_RECORD *node_ptr = nodes_[i];

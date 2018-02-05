@@ -675,7 +675,7 @@ extern "C" {
         monitor.cancel_this = nat;
         monitor.progress_this = nat;
         
-        char *text = nat->api.GetHOCRText(page,&monitor);
+        char *text = nat->api.GetHOCRText(&monitor, page);
         
         jstring result = env->NewStringUTF(text);
         

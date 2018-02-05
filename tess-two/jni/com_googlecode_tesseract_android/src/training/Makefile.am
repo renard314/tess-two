@@ -10,16 +10,8 @@ AM_CPPFLAGS += \
 
 EXTRA_DIST = language-specific.sh tesstrain.sh tesstrain_utils.sh
 
-if MINGW
-# try static build
-#AM_LDFLAGS += -all-static
-#libic=-lsicuin -licudt -lsicuuc
-libicu=-licuin -licuuc
-else
-libicu=-licui18n -licuuc
-endif
-# TODO: training programs can not be linked to shared library created 
-# with -fvisibility 
+# TODO: training programs can not be linked to shared library created
+# with -fvisibility
 if VISIBILITY
 AM_LDFLAGS += -all-static
 endif
@@ -33,9 +25,9 @@ noinst_HEADERS = \
 noinst_LTLIBRARIES = libtesseract_training.la libtesseract_tessopt.la
 
 libtesseract_training_la_LIBADD = \
-    ../cutil/libtesseract_cutil.la 
+    ../cutil/libtesseract_cutil.la
 #    ../api/libtesseract.la
-    
+
 libtesseract_training_la_SOURCES = \
     boxchar.cpp commandlineflags.cpp commontraining.cpp degradeimage.cpp \
       fileio.cpp ligature_table.cpp normstrngs.cpp pango_font_info.cpp \
@@ -178,7 +170,7 @@ set_unicharset_properties_SOURCES = set_unicharset_properties.cpp
 set_unicharset_properties_LDADD = \
     libtesseract_training.la \
     libtesseract_tessopt.la \
-    $(libicu)
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 set_unicharset_properties_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -224,7 +216,8 @@ text2image_SOURCES = text2image.cpp
 #text2image_LDFLAGS = -static
 text2image_LDADD = \
     libtesseract_training.la \
-    libtesseract_tessopt.la
+    libtesseract_tessopt.la \
+    $(ICU_I18N_LIBS) $(ICU_UC_LIBS)
 if USING_MULTIPLELIBS
 text2image_LDADD += \
     ../textord/libtesseract_textord.la \
@@ -242,7 +235,7 @@ else
 text2image_LDADD += \
     ../api/libtesseract.la
 endif
-text2image_LDADD += $(libicu) -lpango-1.0 -lpangocairo-1.0 \
+text2image_LDADD += $(ICU_UC_LIBS) -lpango-1.0 -lpangocairo-1.0 \
 		    -lgobject-2.0 -lglib-2.0 -lcairo -lpangoft2-1.0 -lfontconfig
 
 unicharset_extractor_SOURCES = unicharset_extractor.cpp

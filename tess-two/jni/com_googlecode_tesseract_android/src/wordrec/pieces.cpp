@@ -27,7 +27,6 @@
 ----------------------------------------------------------------------*/
 
 #include "blobs.h"
-#include "freelist.h"
 #include "helpers.h"
 #include "matrix.h"
 #include "ndminx.h"
@@ -266,7 +265,6 @@ void Wordrec::merge_and_put_fragment_lists(inT16 row, inT16 column,
 
   delete [] choice_lists_it;
 }
-
 
 /**********************************************************************
  * get_fragment_lists
