@@ -24,17 +24,19 @@
  -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *====================================================================*/
 
-/*
- *  pngiostub.c
+/*!
+ * \file pngiostub.c
+ * <pre>
  *
  *     Stubs for pngio.c functions
+ * </pre>
  */
-
-#include "allheaders.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config_auto.h"
 #endif  /* HAVE_CONFIG_H */
+
+#include "allheaders.h"
 
 /* --------------------------------------------*/
 #if  !HAVE_LIBPNG   /* defined in environ.h */
@@ -86,6 +88,13 @@ l_int32 isPngInterlaced(const char *filename, l_int32 *pinterlaced)
 
 /* ----------------------------------------------------------------------*/
 
+l_int32 fgetPngColormapInfo(FILE *fp, PIXCMAP **pcmap, l_int32 *ptransparency)
+{
+    return ERROR_INT("function not present", "fgetPngColormapInfo", 1);
+}
+
+/* ----------------------------------------------------------------------*/
+
 l_int32 pixWritePng(const char *filename, PIX *pix, l_float32 gamma)
 {
     return ERROR_INT("function not present", "pixWritePng", 1);
@@ -116,14 +125,14 @@ void l_pngSetReadStrip16To8(l_int32 flag)
 
 /* ----------------------------------------------------------------------*/
 
-PIX * pixReadMemPng(const l_uint8 *cdata, size_t size)
+PIX * pixReadMemPng(const l_uint8 *filedata, size_t filesize)
 {
     return (PIX * )ERROR_PTR("function not present", "pixReadMemPng", NULL);
 }
 
 /* ----------------------------------------------------------------------*/
 
-l_int32 pixWriteMemPng(l_uint8 **pdata, size_t *psize, PIX *pix,
+l_int32 pixWriteMemPng(l_uint8 **pfiledata, size_t *pfilesize, PIX *pix,
                        l_float32 gamma)
 {
     return ERROR_INT("function not present", "pixWriteMemPng", 1);
